@@ -3,15 +3,13 @@ The fmoe.functions module contains functions that are directly warped up from
 C/CUDA functions to complete distributed communication, computation and gradient
 computation.
 """
-import sys
 
 import torch
 from torch.autograd import Function
-
-sys.append('/home/geoalmtbs/miniconda3/envs/fastmoe/lib/python3.8/site-packages/fastmoe-1.0.0-py3.8-linux-x86_64.egg')
-# ?
 import fmoe_cuda
-from .utils import get_torch_default_comm
+import sys
+sys.path.append('/home/geoalmtbs/vita/fastmoe/fmoe')
+from utils import get_torch_default_comm
 
 
 _moe_group = None

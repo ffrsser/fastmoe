@@ -3,8 +3,10 @@ Adaption to act as the MLP layer using an MoE MLP layer in transformer.
 """
 import torch
 import torch.nn as nn
-from .layers import FMoE
-from .linear import FMoELinear
+import sys
+sys.path.append('/home/geoalmtbs/vita/fastmoe/fmoe')
+from layers import FMoE
+from linear import FMoELinear
 
 
 class _Expert(nn.Module):
@@ -13,10 +15,10 @@ class _Expert(nn.Module):
     within one worker.
     """
 
-    def __init__(self, num_expert, d_model, d_hidden, activation, rank=0):
+    def __init__(self, num_expert, d_model, d_hidden, d_output, activation, rank=0):
         super().__init__()
         self.htoh4 = FMoELinear(num_expert, d_model, d_hidden, bias=True, rank=rank)
-        self.h4toh = FMoELinear(num_expert, d_hidden, d_model, bias=True, rank=rank)
+        self.h4toh = FMoELinear(num_expert, d_hidden, d_output, bias=True, rank=rank)
         self.activation = activation
 
     def forward(self, inp, fwd_expert_count):
@@ -42,6 +44,7 @@ class FMoEResNetFF(FMoE):
         num_expert=32,
         d_model=1024,
         d_hidden=4096,
+        d_output=10,
         activation=torch.nn.GELU(),
         expert_dp_comm="none",
         expert_rank=0,
@@ -49,7 +52,7 @@ class FMoEResNetFF(FMoE):
     ):
         super().__init__(num_expert=num_expert, d_model=d_model, **kwargs)
         self.experts = _Expert(
-            num_expert, d_model, d_hidden, activation, rank=expert_rank
+            num_expert, d_model, d_hidden, d_output, activation, rank=expert_rank
         )
         self.mark_parallel_comm(expert_dp_comm)
 

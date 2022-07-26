@@ -114,16 +114,16 @@ class Residual(nn.Module):
         Y += X
         return F.relu(Y)
 
-sys.path.append('/home/geoalmtbs/vita/fastmoe')
-from fmoe.resnet import FMoEResNetFF
+sys.path.append('/home/geoalmtbs/vita/fastmoe/fmoe')
+from resnetff import FMoEResNetFF
 
 class CustomizedMoEFF(FMoEResNetFF):
-    def __init__(self, d_model, d_inner, dropout, pre_lnorm=False, moe_num_expert=64, moe_top_k=2):
+    def __init__(self, d_model, d_inner, d_output, dropout, pre_lnorm=False, moe_num_expert=64, moe_top_k=2):
         activation = nn.Sequential(
             nn.ReLU(),
             nn.Dropout(dropout)
         )
-        super().__init__(num_expert=moe_num_expert, d_model=d_model, d_hidden=d_inner, top_k=moe_top_k,
+        super().__init__(num_expert=moe_num_expert, d_model=d_model, d_hidden=d_inner, d_output=d_output, top_k=moe_top_k,
                 activation=activation)
 
         self.pre_lnorm = pre_lnorm
@@ -244,14 +244,16 @@ def run():
     b5 = nn.Sequential(*resnet_block(256, 512, 2))
     use_ff_moe = False
     if use_ff_moe == True:
-        b6 = CustomizedMoEFF(512, 256, 0.5, pre_lnorm=False, moe_num_expert=4, moe_top_k=2)
+        b6 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=128, moe_top_k=2)
         net = nn.Sequential(b1, b2, b3, b4, b5,
                             nn.AdaptiveAvgPool2d((1,1)),
-                            nn.Flatten(), b6, nn.Linear(512, 10))
+                            nn.Flatten(), b6)
     else:
         net = nn.Sequential(b1, b2, b3, b4, b5,
                             nn.AdaptiveAvgPool2d((1,1)),
-                            nn.Flatten(), nn.Linear(512, 10))
+                            nn.Flatten(), nn.Linear(512, 256),
+                            nn.ReLU(), nn.Dropout(0.5),
+                            nn.Linear(256, 10))
     
     lr, num_epochs, batch_size = 0.05, 3, 2048
     train_iter, test_iter = load_data_fashion_mnist(batch_size, resize=32)

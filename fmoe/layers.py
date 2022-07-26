@@ -6,12 +6,14 @@ import os
 import torch
 import torch.nn as nn
 
-from .functions import prepare_forward, ensure_comm
-from .functions import MOEScatter, MOEGather
-from .functions import AllGather, Slice
-from .gates import NaiveGate
+import sys
+sys.path.append('/home/geoalmtbs/vita/fastmoe/fmoe')
+from functions import prepare_forward, ensure_comm
+from functions import MOEScatter, MOEGather
+from functions import AllGather, Slice
+from gates import NaiveGate
 
-from .fastermoe.config import switch_from_env
+from fastermoe.config import switch_from_env
 
 
 def mark_module_parallel_comm(module, comm):

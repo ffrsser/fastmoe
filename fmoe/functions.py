@@ -7,7 +7,9 @@ computation.
 import torch
 from torch.autograd import Function
 import fmoe_cuda
-from .utils import get_torch_default_comm
+import sys
+sys.path.append('/home/geoalmtbs/vita/fastmoe/fmoe')
+from utils import get_torch_default_comm
 
 
 _moe_group = None

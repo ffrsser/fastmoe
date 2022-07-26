@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: fastmoe
+Version: 1.0.0
+Summary: An efficient Mixture-of-Experts system for PyTorch
+Home-page: https://github.com/laekov/fastmoe
+Author: Jiaao He, Jiezhong Qiu, Aohan Zeng, Tiago Antunes, Jinjun Peng, Qin Li, Mingshu Zhai
+Author-email: hja20@mails.tsinghua.edu.cn
+License: Apache-2
+Platform: UNKNOWN
+License-File: LICENSE
+
+UNKNOWN
+

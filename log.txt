@@ -1,0 +1,45 @@
+cuda version:  11.1
+training on cuda:0
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+loss 0.336, train acc 0.874, test acc 0.816
+6670.5 examples/sec on cuda:0
+
+cuda version:  11.1
+training on cuda:0
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+<Figure size 350x250 with 1 Axes>
+loss 0.370, train acc 0.862, test acc 0.841
+6523.7 examples/sec on cuda:0

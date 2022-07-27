@@ -6,3 +6,9 @@
 1	19818	1658838271407102812	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/local_exchange.o	c35ec504b5d6c7
 0	20138	1658838271727104510	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/balancing.o	8e1300dc0944eea7
 1	20254	1658838271843105126	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/parallel_linear.o	bc99b0202bf3ec7c
+1	13	1658892232697679797	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/fastermoe/smart_schedule.o	9f68292de8030dcb
+3	1058	1658892233741689640	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/stream_manager.o	d537c3ebeb69629e
+2	11768	1658892244445790485	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/fmoe_cuda.o	fff1055caaa53ba
+2	19596	1658892252277864185	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/parallel_linear.o	bc99b0202bf3ec7c
+2	19780	1658892252461865916	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/local_exchange.o	c35ec504b5d6c7
+1	20017	1658892252697868135	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/balancing.o	8e1300dc0944eea7

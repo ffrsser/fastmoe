@@ -18,6 +18,7 @@ fmoe/distributed.py
 fmoe/functions.py
 fmoe/layers.py
 fmoe/linear.py
+fmoe/resnetconv.py
 fmoe/resnetff.py
 fmoe/transformer.py
 fmoe/utils.py

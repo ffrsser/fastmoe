@@ -138,7 +138,15 @@ class FMoE(nn.Module):
 
         self.top_k = top_k
         if type(expert) is list:
-            self.experts = nn.ModuleList([e(d_model) for e in expert])
+            # debug
+            # print('d_model: ', d_model)
+            # debug
+            # print('type(expert[0]): ', type(expert[0]))
+            # !
+            if (True):
+                self.experts = nn.ModuleList([e for e in expert])
+            else:
+                self.experts = nn.ModuleList([e(d_model) for e in expert])
             self.experts_fused = False
             self.num_expert = num_expert = len(expert)
         elif expert is not None:
@@ -196,6 +204,8 @@ class FMoE(nn.Module):
         moe_inp_batch_size = tree.flatten(
             tree.map_structure(lambda tensor: tensor.shape[0], moe_inp)
         )
+        # debug
+        # print('moe_inp_batch_size: ', moe_inp_batch_size)
         assert all(
             [batch_size == moe_inp_batch_size[0] for batch_size in moe_inp_batch_size]
         ), "MoE inputs must have the same batch size"
@@ -212,7 +222,7 @@ class FMoE(nn.Module):
                 return Slice.apply(
                     tensor, self.slice_rank, self.slice_size, self.slice_group
                 )
-
+            print('moe_inp.shape: ', moe_inp.shape)
             moe_inp = tree.map_structure(slice_func, moe_inp)
 
         gate_top_k_idx, gate_score = self.gate(moe_inp)

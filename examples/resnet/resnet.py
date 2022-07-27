@@ -116,6 +116,7 @@ class Residual(nn.Module):
 
 sys.path.append('/home/geoalmtbs/vita/fastmoe/fmoe')
 from resnetff import FMoEResNetFF
+from resnetconv import FMoEResNetConv
 
 class CustomizedMoEFF(FMoEResNetFF):
     def __init__(self, d_model, d_inner, d_output, dropout, pre_lnorm=False, moe_num_expert=64, moe_top_k=2):
@@ -148,6 +149,30 @@ class CustomizedMoEFF(FMoEResNetFF):
 
         return output
 
+class CustomizedMoEResidual(FMoEResNetConv):
+    """The Residual block of ResNet."""
+    def __init__(self, input_channels, num_channels, d_model, moe_num_expert=8, moe_top_k=2,
+                 use_1x1conv=False, strides=1):
+
+        super().__init__(num_expert=moe_num_expert, num_channels=num_channels, d_model=d_model, top_k=moe_top_k)
+        self.conv1 = nn.Conv2d(input_channels, num_channels,
+                               kernel_size=3, padding=1, stride=strides)
+        if use_1x1conv:
+            self.conv3 = nn.Conv2d(input_channels, num_channels,
+                                   kernel_size=1, stride=strides)
+        else:
+            self.conv3 = None
+        self.bn1 = nn.BatchNorm2d(num_channels)
+        self.bn2 = nn.BatchNorm2d(num_channels)
+
+    def forward(self, X):
+        Y = F.relu(self.bn1(self.conv1(X)))
+        Y = self.bn2(super().forward(Y))
+        if self.conv3:
+            X = self.conv3(X)
+        Y += X
+        return F.relu(Y)
+
 def resnet_block(input_channels, num_channels, num_residuals,
                 first_block=False):
     blk = []
@@ -157,6 +182,19 @@ def resnet_block(input_channels, num_channels, num_residuals,
                                 use_1x1conv=True, strides=2))
         else:
             blk.append(Residual(num_channels, num_channels))
+    return blk
+
+def resnet_block_moe(input_channels, num_channels, num_residuals, hw, num_expert,
+                first_block=False):
+    blk = []
+    h, w = hw
+    d_model = num_channels * h * w 
+    for i in range(num_residuals):
+        if i == 0 and not first_block:
+            blk.append(Residual(input_channels, num_channels,
+                                use_1x1conv=True, strides=2))
+        else:
+            blk.append(CustomizedMoEResidual(num_channels, num_channels, d_model, moe_num_expert=num_expert))
     return blk
 
 def accuracy(y_hat, y):
@@ -235,27 +273,53 @@ def train(net, train_iter, test_iter, num_epochs, lr, device):
           f'on {str(device)}')
 
 def run():
+    use_ff_moe = False
+    use_conv_moe_b3 = True
+    use_conv_moe_b7 = False
+    num_expert = 8
+
     b1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3),
                         nn.BatchNorm2d(64), nn.ReLU(),
                         nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
     b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True))
-    b3 = nn.Sequential(*resnet_block(64, 128, 2))
+
+    if use_conv_moe_b3 is True:
+        b3 = nn.Sequential(*resnet_block_moe(64, 128, 2, (4, 4), num_expert))
+    else: 
+        b3 = nn.Sequential(*resnet_block(64, 128, 2))
+
     b4 = nn.Sequential(*resnet_block(128, 256, 2))
-    b5 = nn.Sequential(*resnet_block(256, 512, 2))
-    use_ff_moe = True
-    if use_ff_moe == True:
-        b6 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=8, moe_top_k=2)
-        net = nn.Sequential(b1, b2, b3, b4, b5,
-                            nn.AdaptiveAvgPool2d((1,1)),
-                            nn.Flatten(), b6, nn.Linear(512, 10))
+
+    # if use_ff_moe is True:
+    #     b6 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=8, moe_top_k=2)
+    #     net = nn.Sequential(b1, b2, b3, b4, b5,
+    #                         nn.AdaptiveAvgPool2d((1,1)),
+    #                         nn.Flatten(), b6, nn.Linear(512, 10))
+    # else:
+    #     net = nn.Sequential(b1, b2, b3, b4, b5,
+    #                         nn.AdaptiveAvgPool2d((1,1)),
+    #                         nn.Flatten(), nn.Linear(512, 256),
+    #                         nn.ReLU(), nn.Dropout(0.5),
+    #                         nn.Linear(256, 512), nn.Linear(512, 10))
+
+    if use_conv_moe_b7 is True:
+        b5 = nn.Sequential(*resnet_block_moe(256, 512, 2, (1, 1), num_expert))
     else:
-        net = nn.Sequential(b1, b2, b3, b4, b5,
-                            nn.AdaptiveAvgPool2d((1,1)),
-                            nn.Flatten(), nn.Linear(512, 256),
-                            nn.ReLU(), nn.Dropout(0.5),
-                            nn.Linear(256, 512), nn.Linear(512, 10))
-    
-    lr, num_epochs, batch_size = 0.05, 10, 2048
+        b5 = nn.Sequential(*resnet_block(256, 512, 2))
+        
+    b6 = nn.Sequential(nn.AdaptiveAvgPool2d((1,1)), nn.Flatten())
+
+    if use_ff_moe is True:
+        b7 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=8, moe_top_k=2)
+
+    else:
+        b7 = nn.Sequential(nn.Linear(512, 256),
+                        nn.ReLU(), nn.Dropout(0.5),
+                        nn.Linear(256, 512))
+
+    net = nn.Sequential(b1, b2, b3, b4, b5, b6, b7, nn.Linear(512, 10))
+
+    lr, num_epochs, batch_size = 0.05, 3, 1024
     train_iter, test_iter = load_data_fashion_mnist(batch_size, resize=32)
     train(net, train_iter, test_iter, num_epochs, lr, try_gpu())
 

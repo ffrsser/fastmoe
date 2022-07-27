@@ -29,6 +29,9 @@ class _Expert(nn.Module):
         x = self.htoh4(inp, fwd_expert_count)
         x = self.activation(x)
         x = self.h4toh(x, fwd_expert_count)
+        print('fwd_expert_count: ', fwd_expert_count)
+        print('inp.shape: ', inp.shape)
+        print('x.shape: ', x.shape)
         return x
 
 
@@ -62,6 +65,8 @@ class FMoEResNetFF(FMoE):
         normalization.
         """
         original_shape = inp.shape
+        print('original_shape: ', original_shape)
         inp = inp.reshape(-1, self.d_model)
         output = super().forward(inp)
+        print('output.shape: ', output.shape)
         return output.reshape(original_shape)

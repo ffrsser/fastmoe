@@ -138,7 +138,12 @@ class FMoE(nn.Module):
 
         self.top_k = top_k
         if type(expert) is list:
-            self.experts = nn.ModuleList([e(d_model) for e in expert])
+            print('d_model: ', d_model)
+            # ?
+            if (type(expert[0]) == nn.Conv2d):
+                self.experts = nn.ModuleList([e for e in expert])
+            else:
+                self.experts = nn.ModuleList([e(d_model) for e in expert])
             self.experts_fused = False
             self.num_expert = num_expert = len(expert)
         elif expert is not None:
@@ -196,6 +201,7 @@ class FMoE(nn.Module):
         moe_inp_batch_size = tree.flatten(
             tree.map_structure(lambda tensor: tensor.shape[0], moe_inp)
         )
+        print('moe_inp_batch_size: ', moe_inp_batch_size)
         assert all(
             [batch_size == moe_inp_batch_size[0] for batch_size in moe_inp_batch_size]
         ), "MoE inputs must have the same batch size"

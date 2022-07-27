@@ -242,20 +242,20 @@ def run():
     b3 = nn.Sequential(*resnet_block(64, 128, 2))
     b4 = nn.Sequential(*resnet_block(128, 256, 2))
     b5 = nn.Sequential(*resnet_block(256, 512, 2))
-    use_ff_moe = False
+    use_ff_moe = True
     if use_ff_moe == True:
-        b6 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=128, moe_top_k=2)
+        b6 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=8, moe_top_k=2)
         net = nn.Sequential(b1, b2, b3, b4, b5,
                             nn.AdaptiveAvgPool2d((1,1)),
-                            nn.Flatten(), b6)
+                            nn.Flatten(), b6, nn.Linear(512, 10))
     else:
         net = nn.Sequential(b1, b2, b3, b4, b5,
                             nn.AdaptiveAvgPool2d((1,1)),
                             nn.Flatten(), nn.Linear(512, 256),
                             nn.ReLU(), nn.Dropout(0.5),
-                            nn.Linear(256, 10))
+                            nn.Linear(256, 512), nn.Linear(512, 10))
     
-    lr, num_epochs, batch_size = 0.05, 3, 2048
+    lr, num_epochs, batch_size = 0.05, 10, 2048
     train_iter, test_iter = load_data_fashion_mnist(batch_size, resize=32)
     train(net, train_iter, test_iter, num_epochs, lr, try_gpu())
 

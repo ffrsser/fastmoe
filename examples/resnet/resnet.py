@@ -9,9 +9,6 @@ from torch.nn import functional as F
 from torch.utils import data
 from torchvision import transforms
 
-# sys.path.append('/home/geoalmtbs/d2l-en/pytorch')
-# from d2l import torch as d2l
-
 print('cuda version: ', torch.version.cuda)
 
 class Accumulator:
@@ -274,7 +271,7 @@ def train(net, train_iter, test_iter, num_epochs, lr, device):
 
 def run():
     use_ff_moe = False
-    use_conv_moe_b3 = True
+    use_conv_moe_b3 = False
     use_conv_moe_b7 = False
     num_expert = 8
 
@@ -319,10 +316,15 @@ def run():
 
     net = nn.Sequential(b1, b2, b3, b4, b5, b6, b7, nn.Linear(512, 10))
 
-    lr, num_epochs, batch_size = 0.05, 3, 1024
+    lr, num_epochs, batch_size = 0.05, 10, 2048
     train_iter, test_iter = load_data_fashion_mnist(batch_size, resize=32)
     train(net, train_iter, test_iter, num_epochs, lr, try_gpu())
 
 if __name__ == '__main__':
     run()
+    
+'''
+to do
+add argparser
+'''
 

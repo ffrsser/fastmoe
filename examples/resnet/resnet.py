@@ -9,7 +9,7 @@ from torch.nn import functional as F
 from torch.utils import data
 from torchvision import transforms
 
-print('cuda version: ', torch.version.cuda)
+# print('cuda version: ', torch.version.cuda)
 
 class Accumulator:
     """For accumulating sums over `n` variables."""
@@ -270,10 +270,8 @@ def train(net, train_iter, test_iter, num_epochs, lr, device):
           f'on {str(device)}')
 
 def run():
-    use_ff_moe = False
-    use_conv_moe_b3 = False
-    use_conv_moe_b7 = False
-    num_expert = 8
+    use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, False, False
+    lr, num_epochs, batch_size, num_expert = 0.05, 30, 2048, 8
 
     b1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3),
                         nn.BatchNorm2d(64), nn.ReLU(),
@@ -316,7 +314,6 @@ def run():
 
     net = nn.Sequential(b1, b2, b3, b4, b5, b6, b7, nn.Linear(512, 10))
 
-    lr, num_epochs, batch_size = 0.05, 10, 2048
     train_iter, test_iter = load_data_fashion_mnist(batch_size, resize=32)
     train(net, train_iter, test_iter, num_epochs, lr, try_gpu())
 

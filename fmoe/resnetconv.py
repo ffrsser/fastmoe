@@ -76,6 +76,6 @@ class FMoEResNetConv(FMoE):
         inp = inp.reshape(original_shape[0], -1)
         output = super().forward(inp)
         # debug
-        # print('In class FMoEResNetConv: output_shape: ', output.shape) 
+        # print('In class FMoEResNetConv: output_shape: ', output.shape)
         return output.reshape(original_shape)
         # return super().forward(inp)

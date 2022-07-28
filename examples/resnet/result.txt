@@ -17,6 +17,8 @@ training on cuda:0
 loss 0.314, train acc 0.886, test acc 0.855
 6567.2 examples/sec on cuda:0
 
+--
+
 lr, num_epochs, batch_size = 0.05, 10, 2048
 
 with moe b3 num_expert=8
@@ -30,3 +32,19 @@ cuda version:  11.1
 training on cuda:0
 loss 0.203, train acc 0.924, test acc 0.877
 6923.8 examples/sec on cuda:0
+
+--
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+lr, num_epochs, batch_size, num_expert = 0.05, 30, 2048, 8
+
+training on cuda:0
+loss 0.036, train acc 0.988, test acc 0.874
+6541.0 examples/sec on cuda:0
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, False, False
+lr, num_epochs, batch_size, num_expert = 0.05, 30, 2048, 8
+
+training on cuda:0
+loss 0.053, train acc 0.983, test acc 0.879         
+6723.3 examples/sec on cuda:0

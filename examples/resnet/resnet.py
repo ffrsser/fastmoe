@@ -84,6 +84,21 @@ def load_data_fashion_mnist(batch_size, resize=None):
                             num_workers=get_dataloader_workers()),
             data.DataLoader(mnist_test, batch_size, shuffle=False,
                             num_workers=get_dataloader_workers()))
+    
+def load_cifar10(batch_size, resize=None):
+    """Download the CIFAR-10 dataset and then load it into memory."""
+    trans = [transforms.ToTensor()]
+    if resize:
+        trans.insert(0, transforms.Resize(resize))
+    trans = transforms.Compose(trans)
+    mnist_train = torchvision.datasets.CIFAR10(
+        root="../data", train=True, transform=trans, download=True)
+    mnist_test = torchvision.datasets.CIFAR10(
+        root="../data", train=False, transform=trans, download=True)
+    return (data.DataLoader(mnist_train, batch_size, shuffle=True,
+                            num_workers=get_dataloader_workers()),
+            data.DataLoader(mnist_test, batch_size, shuffle=False,
+                            num_workers=get_dataloader_workers()))
 
 
 class Residual(nn.Module):
@@ -263,6 +278,8 @@ def train(net, train_iter, test_iter, num_epochs, lr, device):
             #     animator.add(epoch + (i + 1) / num_batches,
             #                  (train_l, train_acc, None))
         test_acc = evaluate_accuracy_gpu(net, test_iter)
+        print(f'epoch {epoch:2d}, loss {train_l:.3f}, train acc {train_acc:.3f}, '
+            f'test acc {test_acc:.3f}')
         # animator.add(epoch + 1, (None, None, test_acc))
     print(f'loss {train_l:.3f}, train acc {train_acc:.3f}, '
           f'test acc {test_acc:.3f}')
@@ -271,9 +288,13 @@ def train(net, train_iter, test_iter, num_epochs, lr, device):
 
 def run():
     use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, False, False
-    lr, num_epochs, batch_size, num_expert = 0.05, 30, 2048, 8
+    moe_top_k, num_expert = 2, 16
+    lr, num_epochs, batch_size, resize = 0.05, 100, 2048, 32
 
-    b1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3),
+    input_channels = 3
+    # resize is used to control memory usage
+
+    b1 = nn.Sequential(nn.Conv2d(input_channels, 64, kernel_size=7, stride=2, padding=3),
                         nn.BatchNorm2d(64), nn.ReLU(),
                         nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
     b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True))
@@ -305,7 +326,7 @@ def run():
     b6 = nn.Sequential(nn.AdaptiveAvgPool2d((1,1)), nn.Flatten())
 
     if use_ff_moe is True:
-        b7 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=8, moe_top_k=2)
+        b7 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=num_expert, moe_top_k=2)
 
     else:
         b7 = nn.Sequential(nn.Linear(512, 256),
@@ -314,7 +335,7 @@ def run():
 
     net = nn.Sequential(b1, b2, b3, b4, b5, b6, b7, nn.Linear(512, 10))
 
-    train_iter, test_iter = load_data_fashion_mnist(batch_size, resize=32)
+    train_iter, test_iter = load_cifar10(batch_size, resize=resize)
     train(net, train_iter, test_iter, num_epochs, lr, try_gpu())
 
 if __name__ == '__main__':
@@ -322,6 +343,7 @@ if __name__ == '__main__':
     
 '''
 to do
-add argparser
+add argparser for convenience
+add auto-logger
 '''
 

@@ -1,0 +1,41 @@
+--
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, False, False
+lr, num_epochs, batch_size, num_expert, resize = 0.05, 30, 2048, 8, 32
+
+loss 0.005, train acc 1.000, test acc 0.633
+6641.7 examples/sec on cuda:0
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+lr, num_epochs, batch_size, num_expert, resize = 0.05, 30, 2048, 8, 32
+
+training on cuda:0
+loss 0.006, train acc 1.000, test acc 0.614
+6318.0 examples/sec on cuda:0
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+lr, num_epochs, batch_size, num_expert, resize = 0.05, 30, 2048, 10, 32
+loss 0.009, train acc 0.999, test acc 0.625
+6361.8 examples/sec on cuda:0v
+
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 16
+lr, num_epochs, batch_size, resize = 0.05, 30, 2048, 32
+input_channels = 3
+loss 0.073, train acc 0.980, test acc 0.615
+6324.0 examples/sec on cuda:0
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 16
+lr, num_epochs, batch_size, resize = 0.05, 100, 2048, 32
+
+loss 0.000, train acc 1.000, test acc 0.638
+6354.4 examples/sec on cuda:0
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, False, False
+moe_top_k, num_expert = 2, 16
+lr, num_epochs, batch_size, resize = 0.05, 100, 2048, 32
+
+loss 0.000, train acc 1.000, test acc 0.629
+6828.9 examples/sec on cuda:0

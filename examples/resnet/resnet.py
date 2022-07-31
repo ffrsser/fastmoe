@@ -1,3 +1,6 @@
+from ctypes import resize
+from math import gamma
+from pickletools import optimize
 import sys
 
 import numpy as np
@@ -8,6 +11,11 @@ from torch import nn
 from torch.nn import functional as F
 from torch.utils import data
 from torchvision import transforms
+
+# import sys
+# sys.path.append('.')
+# from momentumnet.momentumnet.momentum_net import MomentumNet
+from mresnet import mResNet18
 
 # print('cuda version: ', torch.version.cuda)
 
@@ -242,17 +250,20 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
             metric.add(accuracy(net(X), y), y.numel())
     return metric[0] / metric[1]
 
-def train(net, train_iter, test_iter, num_epochs, lr, device):
+def train(net, train_iter, test_iter, num_epochs, lr, step_size, decay, device, momentum=0.9, weight_decay=5e-4):
     """Train a model with a GPU (defined in Chapter 6).
 
     Defined in :numref:`sec_lenet`"""
-    def init_weights(m):
-        if type(m) == nn.Linear or type(m) == nn.Conv2d:
-            nn.init.xavier_uniform_(m.weight)
-    net.apply(init_weights)
     print('training on', device)
     net.to(device)
-    optimizer = torch.optim.SGD(net.parameters(), lr=lr)
+    # optimizer = torch.optim.Adam(net.parameters(), lr=lr)
+    optimizer = torch.optim.SGD(net.parameters(), lr=lr, 
+                                weight_decay=weight_decay,
+                                momentum=momentum
+                                )
+    # lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=step_size, gamma=decay)
+    lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer,
+                                                            milestones=[100, 150])
     loss = nn.CrossEntropyLoss()
     # animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
     #                         legend=['train loss', 'train acc', 'test acc'])
@@ -281,26 +292,74 @@ def train(net, train_iter, test_iter, num_epochs, lr, device):
         print(f'epoch {epoch:2d}, loss {train_l:.3f}, train acc {train_acc:.3f}, '
             f'test acc {test_acc:.3f}')
         # animator.add(epoch + 1, (None, None, test_acc))
+        lr_scheduler.step()
+    print(f'loss {train_l:.3f}, train acc {train_acc:.3f}, '
+          f'test acc {test_acc:.3f}')
+    print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec '
+          f'on {str(device)}')
+
+def train_mresnet(net, train_iter, test_iter, num_epochs, lr, device, momentum=0.9, weight_decay=5e-4, step_size=30, decay=0.1):
+    """Train a model with a GPU (defined in Chapter 6).
+
+    Defined in :numref:`sec_lenet`"""
+    print('training on', device)
+    net.to(device)
+    # optimizer = torch.optim.Adam(net.parameters(), lr=lr)
+    optimizer = torch.optim.SGD(net.parameters(), lr=lr, 
+                                # weight_decay=weight_decay
+                                )
+    # lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=step_size, gamma=decay)
+    loss = nn.CrossEntropyLoss()
+    # animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
+    #                         legend=['train loss', 'train acc', 'test acc'])
+    timer, num_batches = Timer(), len(train_iter)
+    for epoch in range(num_epochs):
+        # Sum of training loss, sum of training accuracy, no. of examples
+        metric = Accumulator(3)
+        net.train()
+        for i, (X, y) in enumerate(train_iter):
+            timer.start()
+            optimizer.zero_grad()
+            X, y = X.to(device), y.to(device)
+            y_hat = net(X)
+            l = loss(y_hat, y)
+            l.backward()
+            optimizer.step()
+            with torch.no_grad():
+                metric.add(l * X.shape[0], accuracy(y_hat, y), X.shape[0])
+            timer.stop()
+            train_l = metric[0] / metric[2]
+            train_acc = metric[1] / metric[2]
+            # if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+            #     animator.add(epoch + (i + 1) / num_batches,
+            #                  (train_l, train_acc, None))
+        test_acc = evaluate_accuracy_gpu(net, test_iter)
+        print(f'epoch {epoch:2d}, loss {train_l:.3f}, train acc {train_acc:.3f}, '
+            f'test acc {test_acc:.3f}')
+        # animator.add(epoch + 1, (None, None, test_acc))
+        # lr_scheduler.step()
     print(f'loss {train_l:.3f}, train acc {train_acc:.3f}, '
           f'test acc {test_acc:.3f}')
     print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec '
           f'on {str(device)}')
 
 def run():
-    use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, False, False
-    moe_top_k, num_expert = 2, 16
-    lr, num_epochs, batch_size, resize = 0.05, 100, 2048, 32
+    use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+    moe_top_k, num_expert = 2, 8
+    lr, weight_decay, step_size, decay, num_epochs, momentum = 0.1, 5e-4, 30, 0.1, 180, 0.9
+    batch_size, resize = 128, 32
+    # loss = nan if lr too large
 
     input_channels = 3
     # resize is used to control memory usage
 
-    b1 = nn.Sequential(nn.Conv2d(input_channels, 64, kernel_size=7, stride=2, padding=3),
-                        nn.BatchNorm2d(64), nn.ReLU(),
+    b1 = nn.Sequential(nn.Conv2d(input_channels, 64, kernel_size=3, stride=1, padding=1, bias=False),
+                        nn.BatchNorm2d(64), nn.ReLU(inplace=True),
                         nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
     b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True))
 
     if use_conv_moe_b3 is True:
-        b3 = nn.Sequential(*resnet_block_moe(64, 128, 2, (4, 4), num_expert))
+        b3 = nn.Sequential(*resnet_block_moe(64, 128, 2, (8, 8), num_expert))
     else: 
         b3 = nn.Sequential(*resnet_block(64, 128, 2))
 
@@ -322,25 +381,45 @@ def run():
         b5 = nn.Sequential(*resnet_block_moe(256, 512, 2, (1, 1), num_expert))
     else:
         b5 = nn.Sequential(*resnet_block(256, 512, 2))
-        
+
     b6 = nn.Sequential(nn.AdaptiveAvgPool2d((1,1)), nn.Flatten())
 
     if use_ff_moe is True:
-        b7 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=num_expert, moe_top_k=2)
+        b7 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=num_expert, moe_top_k=moe_top_k)
 
     else:
-        b7 = nn.Sequential(nn.Linear(512, 256),
-                        nn.ReLU(), nn.Dropout(0.5),
-                        nn.Linear(256, 512))
+        # b7 = nn.Sequential(nn.Linear(512, 256),
+        #                 nn.ReLU(), nn.Dropout(0.5),
+        #                 nn.Linear(256, 512))
+        b7 = nn.Sequential(nn.Linear(512, 10))
 
-    net = nn.Sequential(b1, b2, b3, b4, b5, b6, b7, nn.Linear(512, 10))
+    net = nn.Sequential(b1, b2, b3, b4, b5, b6, b7)
+
+    def init_weights(m):
+        if type(m) == nn.Linear or type(m) == nn.Conv2d:
+            nn.init.xavier_uniform_(m.weight)
+    net.apply(init_weights)
 
     train_iter, test_iter = load_cifar10(batch_size, resize=resize)
-    train(net, train_iter, test_iter, num_epochs, lr, try_gpu())
+    train(net, train_iter, test_iter, num_epochs, lr, step_size, decay, try_gpu(), weight_decay=weight_decay, momentum=momentum)
 
+def run_mresnet():
+    num_classes, init_speed, gamma, use_backprop = 10, 0, 0.9, True
+    batch_size, resize = 128, 32
+    lr, num_epochs = 0.1, 70
+    momentum, weight_decay = 0.9, 5e-4
+    net = mResNet18(
+        num_classes=num_classes,
+        init_speed=init_speed,
+        gamma=gamma,
+        use_backprop=use_backprop,
+    )
+    train_iter, test_iter = load_cifar10(batch_size, resize=resize)
+    train_mresnet(net, train_iter, test_iter, num_epochs, lr, try_gpu(), momentum=momentum, weight_decay=weight_decay)
+    
 if __name__ == '__main__':
     run()
-    
+
 '''
 to do
 add argparser for convenience

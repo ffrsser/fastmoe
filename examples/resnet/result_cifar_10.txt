@@ -39,3 +39,68 @@ lr, num_epochs, batch_size, resize = 0.05, 100, 2048, 32
 
 loss 0.000, train acc 1.000, test acc 0.629
 6828.9 examples/sec on cuda:0
+
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 8
+lr, weight_decay, step_size, decay, num_epochs = 0.1, 0.0, 30, 0.1, 100
+batch_size, resize = 128, 32
+
+loss 0.000, train acc 1.000, test acc 0.770
+6356.8 examples/sec on cuda:0
+
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, False, False
+moe_top_k, num_expert = 2, 8
+lr, weight_decay, step_size, decay, num_epochs = 0.1, 0.0, 30, 0.1, 70
+batch_size, resize = 128, 32
+loss 0.000, train acc 1.000, test acc 0.765
+
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 8
+lr, weight_decay, step_size, decay, num_epochs = 0.2, 0.0, 30, 0.1, 70
+batch_size, resize = 128, 32
+loss 0.001, train acc 1.000, test acc 0.766
+
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 8
+lr, weight_decay, step_size, decay, num_epochs = 0.2, 0.0, 30, 0.1, 70
+batch_size, resize = 64, 32
+loss 0.002, train acc 1.000, test acc 0.764
+
+
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 8
+lr, weight_decay, step_size, decay, num_epochs = 0.2, 0.0, 30, 1.0, 70
+batch_size, resize = 128, 32
+loss 0.044, train acc 0.985, test acc 0.721
+
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 8
+lr, weight_decay, step_size, decay, num_epochs = 0.1, 0.0, 30, 1.0, 70
+batch_size, resize = 128, 32
+loss 0.014, train acc 0.996, test acc 0.742
+
+
+memresnet
+epoch 27, loss 0.000, train acc 1.000, test acc 0.778
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 8
+lr, weight_decay, step_size, decay, num_epochs = 0.1, 5e-4, 30, 0.9, 180
+batch_size, resize = 128, 32
+loss 0.030, train acc 0.991, test acc 0.736
+
+
+After changing the parameters of the first convolutional layer
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 8
+lr, weight_decay, step_size, decay, num_epochs = 0.1, 5e-4, 30, 0.1, 180
+batch_size, resize = 128, 32
+
+epoch 72, loss 0.001, train acc 1.000, test acc 0.814

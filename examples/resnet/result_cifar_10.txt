@@ -104,3 +104,243 @@ lr, weight_decay, step_size, decay, num_epochs = 0.1, 5e-4, 30, 0.1, 180
 batch_size, resize = 128, 32
 
 epoch 72, loss 0.001, train acc 1.000, test acc 0.814
+
+
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 8
+lr, weight_decay, step_size, decay, num_epochs, momentum = 0.1, 5e-4, 30, 0.1, 180, 0.9
+batch_size, resize = 128, 32
+
+epoch  0, loss 2.026, train acc 0.271, test acc 0.414
+epoch  1, loss 1.322, train acc 0.520, test acc 0.468
+epoch  2, loss 1.057, train acc 0.625, test acc 0.618
+epoch  3, loss 0.894, train acc 0.687, test acc 0.476
+epoch  4, loss 0.749, train acc 0.740, test acc 0.583
+epoch  5, loss 0.652, train acc 0.775, test acc 0.669
+epoch  6, loss 0.582, train acc 0.799, test acc 0.696
+epoch  7, loss 0.529, train acc 0.817, test acc 0.724
+epoch  8, loss 0.479, train acc 0.836, test acc 0.699
+epoch  9, loss 0.440, train acc 0.850, test acc 0.693
+epoch 10, loss 0.410, train acc 0.861, test acc 0.774
+epoch 11, loss 0.386, train acc 0.868, test acc 0.761
+epoch 12, loss 0.361, train acc 0.877, test acc 0.679
+epoch 13, loss 0.350, train acc 0.881, test acc 0.650
+epoch 14, loss 0.335, train acc 0.886, test acc 0.749
+epoch 15, loss 0.313, train acc 0.894, test acc 0.762
+epoch 16, loss 0.305, train acc 0.897, test acc 0.704
+epoch 17, loss 0.293, train acc 0.898, test acc 0.773
+epoch 18, loss 0.288, train acc 0.902, test acc 0.778
+epoch 19, loss 0.279, train acc 0.905, test acc 0.750
+epoch 20, loss 0.278, train acc 0.905, test acc 0.714
+epoch 21, loss 0.275, train acc 0.906, test acc 0.767
+epoch 22, loss 0.266, train acc 0.909, test acc 0.725
+epoch 23, loss 0.256, train acc 0.913, test acc 0.721
+epoch 24, loss 0.264, train acc 0.910, test acc 0.755
+epoch 25, loss 0.253, train acc 0.913, test acc 0.704
+epoch 26, loss 0.254, train acc 0.913, test acc 0.774
+epoch 27, loss 0.255, train acc 0.913, test acc 0.767
+epoch 28, loss 0.249, train acc 0.915, test acc 0.723
+epoch 29, loss 0.245, train acc 0.917, test acc 0.755
+epoch 30, loss 0.244, train acc 0.916, test acc 0.696
+epoch 31, loss 0.243, train acc 0.916, test acc 0.721
+epoch 32, loss 0.249, train acc 0.915, test acc 0.787
+epoch 33, loss 0.244, train acc 0.917, test acc 0.618
+epoch 34, loss 0.235, train acc 0.919, test acc 0.772
+epoch 35, loss 0.235, train acc 0.918, test acc 0.733
+epoch 36, loss 0.229, train acc 0.922, test acc 0.747
+epoch 37, loss 0.235, train acc 0.918, test acc 0.779
+epoch 38, loss 0.232, train acc 0.921, test acc 0.711
+epoch 39, loss 0.240, train acc 0.918, test acc 0.709
+epoch 40, loss 0.227, train acc 0.921, test acc 0.751
+epoch 41, loss 0.231, train acc 0.921, test acc 0.777
+epoch 42, loss 0.227, train acc 0.921, test acc 0.759
+epoch 43, loss 0.231, train acc 0.920, test acc 0.742
+epoch 44, loss 0.220, train acc 0.924, test acc 0.749
+epoch 45, loss 0.234, train acc 0.919, test acc 0.703
+epoch 46, loss 0.226, train acc 0.923, test acc 0.706
+epoch 47, loss 0.230, train acc 0.921, test acc 0.760
+epoch 48, loss 0.222, train acc 0.923, test acc 0.783
+epoch 49, loss 0.234, train acc 0.919, test acc 0.719
+epoch 50, loss 0.217, train acc 0.926, test acc 0.748
+epoch 51, loss 0.238, train acc 0.917, test acc 0.754
+epoch 52, loss 0.221, train acc 0.926, test acc 0.782
+epoch 53, loss 0.222, train acc 0.924, test acc 0.765
+epoch 54, loss 0.214, train acc 0.926, test acc 0.725
+epoch 55, loss 0.228, train acc 0.923, test acc 0.725
+epoch 56, loss 0.222, train acc 0.925, test acc 0.695
+epoch 57, loss 0.229, train acc 0.922, test acc 0.740
+epoch 58, loss 0.215, train acc 0.926, test acc 0.769
+epoch 59, loss 0.228, train acc 0.922, test acc 0.661
+epoch 60, loss 0.221, train acc 0.925, test acc 0.754
+epoch 61, loss 0.215, train acc 0.926, test acc 0.658
+epoch 62, loss 0.226, train acc 0.922, test acc 0.754
+epoch 63, loss 0.217, train acc 0.926, test acc 0.773
+epoch 64, loss 0.222, train acc 0.925, test acc 0.724
+epoch 65, loss 0.227, train acc 0.923, test acc 0.725
+epoch 66, loss 0.218, train acc 0.925, test acc 0.731
+epoch 67, loss 0.227, train acc 0.923, test acc 0.746
+epoch 68, loss 0.214, train acc 0.928, test acc 0.745
+epoch 69, loss 0.218, train acc 0.924, test acc 0.767
+epoch 70, loss 0.217, train acc 0.926, test acc 0.741
+epoch 71, loss 0.222, train acc 0.924, test acc 0.772
+
+
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 8
+lr, weight_decay, step_size, decay, num_epochs, momentum = 0.1, 5e-5, 30, 0.1, 180, 0.9
+batch_size, resize = 128, 32
+
+epoch  7, loss 0.897, train acc 0.682, test acc 0.640
+epoch  8, loss 0.803, train acc 0.718, test acc 0.682
+epoch  9, loss 0.717, train acc 0.748, test acc 0.656
+epoch 10, loss 0.639, train acc 0.776, test acc 0.696
+epoch 11, loss 0.558, train acc 0.803, test acc 0.672
+epoch 12, loss 0.479, train acc 0.833, test acc 0.702
+epoch 13, loss 0.408, train acc 0.856, test acc 0.709
+epoch 14, loss 0.354, train acc 0.874, test acc 0.698
+epoch 15, loss 0.295, train acc 0.896, test acc 0.693
+epoch 16, loss 0.254, train acc 0.909, test acc 0.738
+epoch 17, loss 0.212, train acc 0.925, test acc 0.710
+epoch 18, loss 0.181, train acc 0.937, test acc 0.738
+epoch 19, loss 0.152, train acc 0.947, test acc 0.748
+epoch 20, loss 0.137, train acc 0.952, test acc 0.668
+epoch 21, loss 0.114, train acc 0.961, test acc 0.737
+epoch 22, loss 0.104, train acc 0.965, test acc 0.739
+epoch 23, loss 0.092, train acc 0.969, test acc 0.717
+epoch 24, loss 0.082, train acc 0.972, test acc 0.748
+epoch 25, loss 0.076, train acc 0.974, test acc 0.742
+epoch 26, loss 0.071, train acc 0.975, test acc 0.735
+epoch 27, loss 0.067, train acc 0.977, test acc 0.717
+epoch 28, loss 0.063, train acc 0.979, test acc 0.709
+epoch 29, loss 0.057, train acc 0.980, test acc 0.718
+epoch 30, loss 0.057, train acc 0.981, test acc 0.740
+epoch 31, loss 0.051, train acc 0.983, test acc 0.755
+epoch 32, loss 0.050, train acc 0.983, test acc 0.726
+epoch 33, loss 0.050, train acc 0.983, test acc 0.742
+epoch 34, loss 0.051, train acc 0.982, test acc 0.744
+epoch 35, loss 0.054, train acc 0.981, test acc 0.722
+epoch 36, loss 0.045, train acc 0.985, test acc 0.731
+epoch 37, loss 0.044, train acc 0.985, test acc 0.749
+epoch 38, loss 0.046, train acc 0.984, test acc 0.748
+epoch 39, loss 0.047, train acc 0.984, test acc 0.747
+epoch 40, loss 0.040, train acc 0.987, test acc 0.734
+epoch 41, loss 0.041, train acc 0.987, test acc 0.754
+epoch 42, loss 0.040, train acc 0.986, test acc 0.759
+epoch 43, loss 0.047, train acc 0.984, test acc 0.729
+epoch 44, loss 0.037, train acc 0.987, test acc 0.752
+epoch 45, loss 0.034, train acc 0.988, test acc 0.741
+epoch 46, loss 0.046, train acc 0.984, test acc 0.755
+epoch 47, loss 0.042, train acc 0.986, test acc 0.745
+epoch 48, loss 0.040, train acc 0.986, test acc 0.752
+epoch 49, loss 0.034, train acc 0.989, test acc 0.754
+epoch 50, loss 0.037, train acc 0.988, test acc 0.756
+epoch 51, loss 0.039, train acc 0.986, test acc 0.760
+epoch 52, loss 0.036, train acc 0.988, test acc 0.725
+epoch 53, loss 0.040, train acc 0.986, test acc 0.737
+epoch 54, loss 0.034, train acc 0.989, test acc 0.758
+epoch 55, loss 0.049, train acc 0.984, test acc 0.741
+epoch 56, loss 0.033, train acc 0.989, test acc 0.749
+epoch 57, loss 0.033, train acc 0.989, test acc 0.741
+epoch 58, loss 0.038, train acc 0.987, test acc 0.746
+epoch 59, loss 0.034, train acc 0.989, test acc 0.745
+epoch 60, loss 0.042, train acc 0.986, test acc 0.750
+epoch 61, loss 0.039, train acc 0.986, test acc 0.747
+epoch 62, loss 0.039, train acc 0.987, test acc 0.731
+epoch 63, loss 0.038, train acc 0.987, test acc 0.744
+epoch 64, loss 0.031, train acc 0.989, test acc 0.744
+epoch 65, loss 0.035, train acc 0.988, test acc 0.741
+epoch 66, loss 0.036, train acc 0.988, test acc 0.751
+epoch 67, loss 0.033, train acc 0.989, test acc 0.733
+epoch 68, loss 0.028, train acc 0.991, test acc 0.760
+epoch 69, loss 0.045, train acc 0.985, test acc 0.743
+epoch 70, loss 0.036, train acc 0.988, test acc 0.750
+epoch 71, loss 0.032, train acc 0.989, test acc 0.760
+epoch 72, loss 0.036, train acc 0.988, test acc 0.706
+epoch 73, loss 0.038, train acc 0.987, test acc 0.756
+epoch 74, loss 0.028, train acc 0.991, test acc 0.753
+epoch 75, loss 0.033, train acc 0.989, test acc 0.697
+epoch 76, loss 0.039, train acc 0.986, test acc 0.743
+epoch 77, loss 0.039, train acc 0.986, test acc 0.752
+epoch 78, loss 0.035, train acc 0.988, test acc 0.757
+epoch 79, loss 0.032, train acc 0.990, test acc 0.756
+epoch 80, loss 0.033, train acc 0.989, test acc 0.762
+epoch 81, loss 0.034, train acc 0.989, test acc 0.763
+epoch 82, loss 0.034, train acc 0.989, test acc 0.731
+epoch 83, loss 0.046, train acc 0.985, test acc 0.753
+epoch 84, loss 0.027, train acc 0.991, test acc 0.736
+epoch 85, loss 0.031, train acc 0.990, test acc 0.755
+
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 8
+lr, weight_decay, step_size, decay, num_epochs, momentum = 0.1, 5e-5, 30, 0.1, 180, 0.9
+batch_size, resize = 128, 32
+without xavier_init
+epoch  0, loss 1.899, train acc 0.308, test acc 0.403
+epoch  1, loss 1.322, train acc 0.521, test acc 0.581
+epoch  2, loss 1.077, train acc 0.616, test acc 0.596
+epoch  3, loss 0.912, train acc 0.679, test acc 0.656
+epoch  4, loss 0.787, train acc 0.723, test acc 0.641
+epoch  5, loss 0.679, train acc 0.762, test acc 0.717
+epoch  6, loss 0.571, train acc 0.802, test acc 0.719
+epoch  7, loss 0.488, train acc 0.830, test acc 0.712
+epoch  8, loss 0.409, train acc 0.858, test acc 0.729
+epoch  9, loss 0.340, train acc 0.882, test acc 0.738
+epoch 10, loss 0.289, train acc 0.898, test acc 0.736
+epoch 11, loss 0.233, train acc 0.919, test acc 0.717
+epoch 12, loss 0.200, train acc 0.930, test acc 0.747
+epoch 13, loss 0.168, train acc 0.942, test acc 0.752
+epoch 14, loss 0.151, train acc 0.947, test acc 0.682
+epoch 15, loss 0.126, train acc 0.956, test acc 0.759
+epoch 16, loss 0.113, train acc 0.960, test acc 0.741
+epoch 17, loss 0.106, train acc 0.963, test acc 0.740
+epoch 18, loss 0.085, train acc 0.971, test acc 0.767
+epoch 19, loss 0.080, train acc 0.973, test acc 0.734
+epoch 20, loss 0.074, train acc 0.974, test acc 0.770
+epoch 21, loss 0.070, train acc 0.975, test acc 0.762
+epoch 22, loss 0.065, train acc 0.978, test acc 0.746
+epoch 23, loss 0.057, train acc 0.980, test acc 0.748
+epoch 24, loss 0.056, train acc 0.980, test acc 0.733
+epoch 25, loss 0.053, train acc 0.982, test acc 0.752
+epoch 26, loss 0.056, train acc 0.981, test acc 0.753
+epoch 27, loss 0.047, train acc 0.984, test acc 0.759
+epoch 28, loss 0.051, train acc 0.983, test acc 0.772
+epoch 29, loss 0.043, train acc 0.985, test acc 0.761
+epoch 30, loss 0.047, train acc 0.984, test acc 0.769
+epoch 31, loss 0.046, train acc 0.983, test acc 0.773
+epoch 32, loss 0.046, train acc 0.985, test acc 0.753
+epoch 33, loss 0.045, train acc 0.985, test acc 0.765
+epoch 34, loss 0.037, train acc 0.987, test acc 0.767
+epoch 35, loss 0.038, train acc 0.987, test acc 0.758
+epoch 36, loss 0.037, train acc 0.987, test acc 0.733
+epoch 37, loss 0.039, train acc 0.987, test acc 0.769
+epoch 38, loss 0.040, train acc 0.987, test acc 0.770
+epoch 39, loss 0.045, train acc 0.985, test acc 0.773
+epoch 40, loss 0.037, train acc 0.987, test acc 0.763
+epoch 41, loss 0.037, train acc 0.987, test acc 0.748
+epoch 42, loss 0.038, train acc 0.987, test acc 0.769
+epoch 43, loss 0.034, train acc 0.988, test acc 0.734
+epoch 44, loss 0.038, train acc 0.987, test acc 0.766
+epoch 45, loss 0.032, train acc 0.989, test acc 0.762
+epoch 46, loss 0.037, train acc 0.987, test acc 0.764
+epoch 47, loss 0.035, train acc 0.988, test acc 0.764
+epoch 48, loss 0.031, train acc 0.990, test acc 0.778
+epoch 49, loss 0.028, train acc 0.990, test acc 0.771
+epoch 50, loss 0.032, train acc 0.990, test acc 0.762
+epoch 51, loss 0.035, train acc 0.988, test acc 0.758
+epoch 52, loss 0.037, train acc 0.988, test acc 0.763
+epoch 53, loss 0.041, train acc 0.986, test acc 0.772
+epoch 54, loss 0.029, train acc 0.991, test acc 0.737
+epoch 55, loss 0.035, train acc 0.988, test acc 0.767
+epoch 56, loss 0.044, train acc 0.985, test acc 0.771
+epoch 57, loss 0.035, train acc 0.988, test acc 0.757
+
+
+After changing the model
+Without image preprocessing
+use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
+moe_top_k, num_expert = 2, 8
+lr, weight_decay, step_size, decay, num_epochs, momentum = 0.1, 5e-5, 30, 0.1, 180, 0.9
+batch_size, resize = 128, 32
+loss 0.019, train acc 0.993, test acc 0.830

@@ -1,7 +1,10 @@
 import torch
 import torch.nn as nn
 import sys
-sys.path.append('/home/geoalmtbs/vita/momentumnet/momentumnet')
+
+basedir = '/home/geoalmtbs/vita/'
+
+sys.path.append(basedir + 'momentumnet/momentumnet')
 from momentum_net import MomentumNet
 
 class Bottleneck(nn.Module):

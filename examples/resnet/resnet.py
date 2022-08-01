@@ -1,6 +1,7 @@
 from ctypes import resize
 from math import gamma
 from pickletools import optimize
+from pkgutil import get_data
 import sys
 
 import numpy as np
@@ -16,6 +17,8 @@ from torchvision import transforms
 # sys.path.append('.')
 # from momentumnet.momentumnet.momentum_net import MomentumNet
 from mresnet import mResNet18
+
+basedir = '/home/geoalmtbs/vita/'
 
 # print('cuda version: ', torch.version.cuda)
 
@@ -95,18 +98,40 @@ def load_data_fashion_mnist(batch_size, resize=None):
     
 def load_cifar10(batch_size, resize=None):
     """Download the CIFAR-10 dataset and then load it into memory."""
-    trans = [transforms.ToTensor()]
-    if resize:
-        trans.insert(0, transforms.Resize(resize))
-    trans = transforms.Compose(trans)
-    mnist_train = torchvision.datasets.CIFAR10(
-        root="../data", train=True, transform=trans, download=True)
-    mnist_test = torchvision.datasets.CIFAR10(
-        root="../data", train=False, transform=trans, download=True)
-    return (data.DataLoader(mnist_train, batch_size, shuffle=True,
-                            num_workers=get_dataloader_workers()),
-            data.DataLoader(mnist_test, batch_size, shuffle=False,
-                            num_workers=get_dataloader_workers()))
+    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                    std=[0.229, 0.224, 0.225])
+    train_iter = torch.utils.data.DataLoader(
+        torchvision.datasets.CIFAR10(root='../data', train=True, transform=transforms.Compose([
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomCrop(32, 4),
+            transforms.ToTensor(),
+            normalize,
+        ]),
+        download=True),
+        batch_size=batch_size, shuffle=True,
+        num_workers=get_dataloader_workers(), pin_memory=True)
+
+    test_iter = torch.utils.data.DataLoader(
+        torchvision.datasets.CIFAR10(root='../data', train=False, transform=transforms.Compose([
+            transforms.ToTensor(),
+            normalize,
+        ])),
+        batch_size=128, shuffle=False,
+        num_workers=get_dataloader_workers(), pin_memory=True)
+    return (train_iter, test_iter)
+
+    # trans = [transforms.ToTensor()]
+    # if resize:
+    #     trans.insert(0, transforms.Resize(resize))
+    # trans = transforms.Compose(trans)
+    # mnist_train = torchvision.datasets.CIFAR10(
+    #     root="../data", train=True, transform=trans, download=True)
+    # mnist_test = torchvision.datasets.CIFAR10(
+    #     root="../data", train=False, transform=trans, download=True)
+    # return (data.DataLoader(mnist_train, batch_size, shuffle=True,
+    #                         num_workers=get_dataloader_workers()),
+    #         data.DataLoader(mnist_test, batch_size, shuffle=False,
+    #                         num_workers=get_dataloader_workers()))
 
 
 class Residual(nn.Module):
@@ -126,15 +151,17 @@ class Residual(nn.Module):
         self.bn1 = nn.BatchNorm2d(num_channels)
         self.bn2 = nn.BatchNorm2d(num_channels)
 
+        self.bn3 = nn.BatchNorm2d(num_channels)
+
     def forward(self, X):
         Y = F.relu(self.bn1(self.conv1(X)))
         Y = self.bn2(self.conv2(Y))
         if self.conv3:
-            X = self.conv3(X)
+            X = self.bn3(self.conv3(X))
         Y += X
         return F.relu(Y)
 
-sys.path.append('/home/geoalmtbs/vita/fastmoe/fmoe')
+sys.path.append(basedir + 'fastmoe/fmoe')
 from resnetff import FMoEResNetFF
 from resnetconv import FMoEResNetConv
 
@@ -185,11 +212,13 @@ class CustomizedMoEResidual(FMoEResNetConv):
         self.bn1 = nn.BatchNorm2d(num_channels)
         self.bn2 = nn.BatchNorm2d(num_channels)
 
+        self.bn3 = nn.BatchNorm2d(num_channels)
+
     def forward(self, X):
         Y = F.relu(self.bn1(self.conv1(X)))
         Y = self.bn2(super().forward(Y))
         if self.conv3:
-            X = self.conv3(X)
+            X = self.bn3(self.conv3(X))
         Y += X
         return F.relu(Y)
 
@@ -204,8 +233,7 @@ def resnet_block(input_channels, num_channels, num_residuals,
             blk.append(Residual(num_channels, num_channels))
     return blk
 
-def resnet_block_moe(input_channels, num_channels, num_residuals, hw, num_expert,
-                first_block=False):
+def resnet_block_moe(input_channels, num_channels, num_residuals, hw, num_expert=8, moe_top_k=2, first_block=False):
     blk = []
     h, w = hw
     d_model = num_channels * h * w 
@@ -214,7 +242,7 @@ def resnet_block_moe(input_channels, num_channels, num_residuals, hw, num_expert
             blk.append(Residual(input_channels, num_channels,
                                 use_1x1conv=True, strides=2))
         else:
-            blk.append(CustomizedMoEResidual(num_channels, num_channels, d_model, moe_num_expert=num_expert))
+            blk.append(CustomizedMoEResidual(num_channels, num_channels, d_model, moe_num_expert=num_expert, moe_top_k=moe_top_k))
     return blk
 
 def accuracy(y_hat, y):
@@ -250,7 +278,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
             metric.add(accuracy(net(X), y), y.numel())
     return metric[0] / metric[1]
 
-def train(net, train_iter, test_iter, num_epochs, lr, step_size, decay, device, momentum=0.9, weight_decay=5e-4):
+def train(net, train_iter, test_iter, num_epochs, lr, device, momentum=0.9, gamma=0.1, weight_decay=5e-4, milestones=[100,150]):
     """Train a model with a GPU (defined in Chapter 6).
 
     Defined in :numref:`sec_lenet`"""
@@ -263,7 +291,8 @@ def train(net, train_iter, test_iter, num_epochs, lr, step_size, decay, device, 
                                 )
     # lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=step_size, gamma=decay)
     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer,
-                                                            milestones=[100, 150])
+                                                        milestones=milestones,
+                                                        gamma=gamma)
     loss = nn.CrossEntropyLoss()
     # animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs],
     #                         legend=['train loss', 'train acc', 'test acc'])
@@ -344,26 +373,42 @@ def train_mresnet(net, train_iter, test_iter, num_epochs, lr, device, momentum=0
           f'on {str(device)}')
 
 def run():
-    use_ff_moe, use_conv_moe_b3, use_conv_moe_b7 = False, True, False
-    moe_top_k, num_expert = 2, 8
-    lr, weight_decay, step_size, decay, num_epochs, momentum = 0.1, 5e-4, 30, 0.1, 180, 0.9
-    batch_size, resize = 128, 32
+    use_ff_moe = False
+    use_conv_moe = [False, True, True, True]
+    num_expert = 8
+    moe_top_k = 2
+
+    lr = 0.1
+    weight_decay = 5e-5
+    num_epochs = 180
+    momentum = 0.9
+    gamma = 0.1
+    milestones = [100, 150]
+    batch_size = 128
+    resize = 32
     # loss = nan if lr too large
 
     input_channels = 3
     # resize is used to control memory usage
 
     b1 = nn.Sequential(nn.Conv2d(input_channels, 64, kernel_size=3, stride=1, padding=1, bias=False),
-                        nn.BatchNorm2d(64), nn.ReLU(inplace=True),
-                        nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
-    b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True))
+                        nn.BatchNorm2d(64), nn.ReLU(inplace=True)
+                        )
 
-    if use_conv_moe_b3 is True:
-        b3 = nn.Sequential(*resnet_block_moe(64, 128, 2, (8, 8), num_expert))
+    if use_conv_moe[0] is True:
+        b2 = nn.Sequential(*resnet_block_moe(64, 64, 2, (32, 32), first_block=True, moe_top_k=moe_top_k))
+    else:
+        b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True))
+
+    if use_conv_moe[1] is True:
+        b3 = nn.Sequential(*resnet_block_moe(64, 128, 2, (16, 16), num_expert=num_expert, moe_top_k=moe_top_k))
     else: 
         b3 = nn.Sequential(*resnet_block(64, 128, 2))
 
-    b4 = nn.Sequential(*resnet_block(128, 256, 2))
+    if use_conv_moe[2] is True:
+        b4 = nn.Sequential(*resnet_block_moe(128, 256, 2, (8, 8), num_expert=num_expert, moe_top_k=moe_top_k))
+    else:
+        b4 = nn.Sequential(*resnet_block(128, 256, 2))
 
     # if use_ff_moe is True:
     #     b6 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=8, moe_top_k=2)
@@ -377,8 +422,8 @@ def run():
     #                         nn.ReLU(), nn.Dropout(0.5),
     #                         nn.Linear(256, 512), nn.Linear(512, 10))
 
-    if use_conv_moe_b7 is True:
-        b5 = nn.Sequential(*resnet_block_moe(256, 512, 2, (1, 1), num_expert))
+    if use_conv_moe[3] is True:
+        b5 = nn.Sequential(*resnet_block_moe(256, 512, 2, (4, 4), num_expert=num_expert, moe_top_k=moe_top_k))
     else:
         b5 = nn.Sequential(*resnet_block(256, 512, 2))
 
@@ -395,13 +440,13 @@ def run():
 
     net = nn.Sequential(b1, b2, b3, b4, b5, b6, b7)
 
-    def init_weights(m):
-        if type(m) == nn.Linear or type(m) == nn.Conv2d:
-            nn.init.xavier_uniform_(m.weight)
-    net.apply(init_weights)
+    # def init_weights(m):
+    #     if type(m) == nn.Linear or type(m) == nn.Conv2d:
+    #         nn.init.xavier_uniform_(m.weight)
+    # net.apply(init_weights)
 
     train_iter, test_iter = load_cifar10(batch_size, resize=resize)
-    train(net, train_iter, test_iter, num_epochs, lr, step_size, decay, try_gpu(), weight_decay=weight_decay, momentum=momentum)
+    train(net, train_iter, test_iter, num_epochs, lr, try_gpu(), gamma=gamma, milestones=milestones, weight_decay=weight_decay, momentum=momentum)
 
 def run_mresnet():
     num_classes, init_speed, gamma, use_backprop = 10, 0, 0.9, True

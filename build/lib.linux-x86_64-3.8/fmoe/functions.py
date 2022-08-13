@@ -13,7 +13,7 @@ import os
 basedir = os.getenv('basedir')
 
 sys.path.append(basedir + 'fastmoe/fmoe')
-from utils import get_torch_default_comm
+from utilsfmoe import get_torch_default_comm
 
 
 _moe_group = None

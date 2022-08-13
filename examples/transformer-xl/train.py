@@ -13,8 +13,8 @@ import torch.optim as optim
 
 from data_utils import get_lm_corpus
 from mem_transformer import MemTransformerLM
-from utils.exp_utils import create_exp_dir
-from utils.data_parallel import BalancedDataParallel
+from utilsfmoe.exp_utils import create_exp_dir
+from utilsfmoe.data_parallel import BalancedDataParallel
 
 parser = argparse.ArgumentParser(description='PyTorch Transformer Language Model')
 parser.add_argument('--data', type=str, default='../data/wikitext-103',

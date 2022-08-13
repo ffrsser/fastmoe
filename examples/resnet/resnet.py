@@ -3,6 +3,7 @@ from math import gamma
 from pickletools import optimize
 from pkgutil import get_data
 import sys
+from turtle import forward
 
 import numpy as np
 import time
@@ -275,9 +276,40 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
             metric.add(accuracy(net(X), y), y.numel())
     return metric[0] / metric[1]
 
-class ResNet18(nn.Module):
-    pass
+class ResNet18MoE(nn.Module):
+    def __init__(self, use_conv_moe, num_expert, moe_top_k):
+        super().__init__()
+        b1 = nn.Sequential(nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False),
+                            nn.BatchNorm2d(64), nn.ReLU(inplace=True)
+                            )
+
+        if use_conv_moe[0] is True:
+            b2 = nn.Sequential(*resnet_block_moe(64, 64, 2, (32, 32), first_block=True, moe_top_k=moe_top_k))
+        else:
+            b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True))
+
+        if use_conv_moe[1] is True:
+            b3 = nn.Sequential(*resnet_block_moe(64, 128, 2, (16, 16), num_expert=num_expert, moe_top_k=moe_top_k))
+        else: 
+            b3 = nn.Sequential(*resnet_block(64, 128, 2))
+
+        if use_conv_moe[2] is True:
+            b4 = nn.Sequential(*resnet_block_moe(128, 256, 2, (8, 8), num_expert=num_expert, moe_top_k=moe_top_k))
+        else:
+            b4 = nn.Sequential(*resnet_block(128, 256, 2))
+
+        if use_conv_moe[3] is True:
+            b5 = nn.Sequential(*resnet_block_moe(256, 512, 2, (4, 4), num_expert=num_expert, moe_top_k=moe_top_k))
+        else:
+            b5 = nn.Sequential(*resnet_block(256, 512, 2))
+
+        b6 = nn.Sequential(nn.AdaptiveAvgPool2d((1,1)), nn.Flatten())
+
+        b7 = nn.Sequential(nn.Linear(512, 10))
+        self.net = nn.Sequential(b1, b2, b3, b4, b5, b6, b7)
     
+    def forward(self, inp):
+        return self.net(inp)
 
 def train(net, train_iter, test_iter, num_epochs, lr, device, momentum=0.9, gamma=0.1, weight_decay=5e-4, milestones=[100,150]):
     """Train a model with a GPU (defined in Chapter 6).
@@ -392,54 +424,56 @@ def run():
     input_channels = 3
     # resize is used to control memory usage
 
-    b1 = nn.Sequential(nn.Conv2d(input_channels, 64, kernel_size=3, stride=1, padding=1, bias=False),
-                        nn.BatchNorm2d(64), nn.ReLU(inplace=True)
-                        )
+    # b1 = nn.Sequential(nn.Conv2d(input_channels, 64, kernel_size=3, stride=1, padding=1, bias=False),
+    #                     nn.BatchNorm2d(64), nn.ReLU(inplace=True)
+    #                     )
 
-    if use_conv_moe[0] is True:
-        b2 = nn.Sequential(*resnet_block_moe(64, 64, 2, (32, 32), first_block=True, moe_top_k=moe_top_k))
-    else:
-        b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True))
+    # if use_conv_moe[0] is True:
+    #     b2 = nn.Sequential(*resnet_block_moe(64, 64, 2, (32, 32), first_block=True, moe_top_k=moe_top_k))
+    # else:
+    #     b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True))
 
-    if use_conv_moe[1] is True:
-        b3 = nn.Sequential(*resnet_block_moe(64, 128, 2, (16, 16), num_expert=num_expert, moe_top_k=moe_top_k))
-    else: 
-        b3 = nn.Sequential(*resnet_block(64, 128, 2))
+    # if use_conv_moe[1] is True:
+    #     b3 = nn.Sequential(*resnet_block_moe(64, 128, 2, (16, 16), num_expert=num_expert, moe_top_k=moe_top_k))
+    # else: 
+    #     b3 = nn.Sequential(*resnet_block(64, 128, 2))
 
-    if use_conv_moe[2] is True:
-        b4 = nn.Sequential(*resnet_block_moe(128, 256, 2, (8, 8), num_expert=num_expert, moe_top_k=moe_top_k))
-    else:
-        b4 = nn.Sequential(*resnet_block(128, 256, 2))
+    # if use_conv_moe[2] is True:
+    #     b4 = nn.Sequential(*resnet_block_moe(128, 256, 2, (8, 8), num_expert=num_expert, moe_top_k=moe_top_k))
+    # else:
+    #     b4 = nn.Sequential(*resnet_block(128, 256, 2))
+
+    # # if use_ff_moe is True:
+    # #     b6 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=8, moe_top_k=2)
+    # #     net = nn.Sequential(b1, b2, b3, b4, b5,
+    # #                         nn.AdaptiveAvgPool2d((1,1)),
+    # #                         nn.Flatten(), b6, nn.Linear(512, 10))
+    # # else:
+    # #     net = nn.Sequential(b1, b2, b3, b4, b5,
+    # #                         nn.AdaptiveAvgPool2d((1,1)),
+    # #                         nn.Flatten(), nn.Linear(512, 256),
+    # #                         nn.ReLU(), nn.Dropout(0.5),
+    # #                         nn.Linear(256, 512), nn.Linear(512, 10))
+
+    # if use_conv_moe[3] is True:
+    #     b5 = nn.Sequential(*resnet_block_moe(256, 512, 2, (4, 4), num_expert=num_expert, moe_top_k=moe_top_k))
+    # else:
+    #     b5 = nn.Sequential(*resnet_block(256, 512, 2))
+
+    # b6 = nn.Sequential(nn.AdaptiveAvgPool2d((1,1)), nn.Flatten())
 
     # if use_ff_moe is True:
-    #     b6 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=8, moe_top_k=2)
-    #     net = nn.Sequential(b1, b2, b3, b4, b5,
-    #                         nn.AdaptiveAvgPool2d((1,1)),
-    #                         nn.Flatten(), b6, nn.Linear(512, 10))
+    #     b7 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=num_expert, moe_top_k=moe_top_k)
+
     # else:
-    #     net = nn.Sequential(b1, b2, b3, b4, b5,
-    #                         nn.AdaptiveAvgPool2d((1,1)),
-    #                         nn.Flatten(), nn.Linear(512, 256),
-    #                         nn.ReLU(), nn.Dropout(0.5),
-    #                         nn.Linear(256, 512), nn.Linear(512, 10))
+    #     # b7 = nn.Sequential(nn.Linear(512, 256),
+    #     #                 nn.ReLU(), nn.Dropout(0.5),
+    #     #                 nn.Linear(256, 512))
+    #     b7 = nn.Sequential(nn.Linear(512, 10))
 
-    if use_conv_moe[3] is True:
-        b5 = nn.Sequential(*resnet_block_moe(256, 512, 2, (4, 4), num_expert=num_expert, moe_top_k=moe_top_k))
-    else:
-        b5 = nn.Sequential(*resnet_block(256, 512, 2))
+    # net = nn.Sequential(b1, b2, b3, b4, b5, b6, b7)
 
-    b6 = nn.Sequential(nn.AdaptiveAvgPool2d((1,1)), nn.Flatten())
-
-    if use_ff_moe is True:
-        b7 = CustomizedMoEFF(512, 256, 512, 0.5, pre_lnorm=False, moe_num_expert=num_expert, moe_top_k=moe_top_k)
-
-    else:
-        # b7 = nn.Sequential(nn.Linear(512, 256),
-        #                 nn.ReLU(), nn.Dropout(0.5),
-        #                 nn.Linear(256, 512))
-        b7 = nn.Sequential(nn.Linear(512, 10))
-
-    net = nn.Sequential(b1, b2, b3, b4, b5, b6, b7)
+    net = ResNet18MoE(use_conv_moe, num_expert, moe_top_k)
 
     # def init_weights(m):
     #     if type(m) == nn.Linear or type(m) == nn.Conv2d:

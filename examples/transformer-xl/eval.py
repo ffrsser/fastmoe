@@ -8,7 +8,7 @@ import torch
 
 from data_utils import get_lm_corpus
 from mem_transformer import MemTransformerLM
-from utils.exp_utils import get_logger
+from utilsfmoe.exp_utils import get_logger
 
 parser = argparse.ArgumentParser(description='PyTorch Transformer Language Model')
 parser.add_argument('--data', type=str, default='../data/wikitext-103',

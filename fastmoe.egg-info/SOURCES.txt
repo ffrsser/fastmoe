@@ -21,7 +21,7 @@ fmoe/linear.py
 fmoe/resnetconv.py
 fmoe/resnetff.py
 fmoe/transformer.py
-fmoe/utils.py
+fmoe/utilsfmoe.py
 fmoe/fastermoe/__init__.py
 fmoe/fastermoe/config.py
 fmoe/fastermoe/expert_utils.py

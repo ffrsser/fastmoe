@@ -4,7 +4,11 @@ Adaption to act as the MLP layer using an MoE MLP layer in transformer.
 import torch
 import torch.nn as nn
 import sys
-sys.path.append('/home/geoalmtbs/vita/fastmoe/fmoe')
+import os
+
+basedir = os.getenv('basedir')
+sys.path.append(basedir + 'fastmoe/fmoe')
+
 from layers import FMoE
 from linear import FMoELinear
 

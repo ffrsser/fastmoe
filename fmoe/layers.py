@@ -7,7 +7,10 @@ import torch
 import torch.nn as nn
 
 import sys
-sys.path.append('/home/geoalmtbs/vita/fastmoe/fmoe')
+
+basedir = os.getenv('basedir')
+sys.path.append(basedir + 'fastmoe/fmoe')
+
 from functions import prepare_forward, ensure_comm
 from functions import MOEScatter, MOEGather
 from functions import AllGather, Slice

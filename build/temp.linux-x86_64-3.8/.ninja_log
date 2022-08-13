@@ -12,3 +12,6 @@
 2	19596	1658892252277864185	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/parallel_linear.o	bc99b0202bf3ec7c
 2	19780	1658892252461865916	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/local_exchange.o	c35ec504b5d6c7
 1	20017	1658892252697868135	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/balancing.o	8e1300dc0944eea7
+1	19634	1660393219267135855	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/local_exchange.o	c35ec504b5d6c7
+1	20090	1660393219723131170	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/balancing.o	8e1300dc0944eea7
+2	20697	1660393220327124972	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/parallel_linear.o	bc99b0202bf3ec7c

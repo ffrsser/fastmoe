@@ -6,7 +6,11 @@ import torch
 import torch.nn as nn
 import math
 import sys
-sys.path.append('/home/geoalmtbs/vita/fastmoe/fmoe')
+import os
+
+basedir = os.getenv('basedir')
+sys.path.append(basedir + 'fastmoe/fmoe')
+
 from layers import FMoE
 from linear import FMoELinear
 
@@ -27,15 +31,18 @@ class _Expert(nn.Module):
         First expand input to 4h (the hidden size is variable, but is called h4
         for convenience). Then perform activation. Finally shirink back to h.
         """
-        # original_shape = inp.shape
-        # print('original_shape: ', original_shape)
+        original_shape = inp.shape
+        # debug
+        # print('In _Expert.forward: original_shape: ', original_shape)
 
-        # h = (math.sqrt(original_shape[-1] / self.num_channels)).type(dtype=int)
-        # inp = inp.reshape(inp.shape[0], self.num_channels, h, h)
-        # x = self.conv(inp)
-        # return x.reshape(original_shape)
-        print(inp)
-        return self.conv(inp)
+        h = int((math.sqrt(original_shape[-1] / self.num_channels)))
+        inp = inp.reshape(inp.shape[0], self.num_channels, h, h)
+        x = self.conv(inp)
+        # debug
+        # print('In _Expert.forward: shape after conv: ', x.shape)
+        return x.reshape(original_shape)
+        # print(inp)
+        # return self.conv(inp)
 
 
 class FMoEResNetConv(FMoE):
@@ -67,9 +74,12 @@ class FMoEResNetConv(FMoE):
         This module wraps up the FMoE module with reshape, residual and layer
         normalization.
         """
-        # original_shape = inp.shape
-        # print('original_shape: ', original_shape)
-        # inp = inp.reshape(original_shape[0], -1)
-        # output = super().forward(inp)
-        # return output.reshape(original_shape)
-        return super().forward(inp)
+        original_shape = inp.shape
+        # debug
+        # print('In class FMoEResNetConv: original_shape: ', original_shape)
+        inp = inp.reshape(original_shape[0], -1)
+        output = super().forward(inp)
+        # debug
+        # print('In class FMoEResNetConv: output_shape: ', output.shape)
+        return output.reshape(original_shape)
+        # return super().forward(inp)

@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 import sys
+import os
 
-basedir = '/home/geoalmtbs/vita/'
-
+basedir = os.getenv('basedir')
 sys.path.append(basedir + 'momentumnet/momentumnet')
 from momentum_net import MomentumNet
 

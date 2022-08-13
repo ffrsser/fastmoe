@@ -7,7 +7,10 @@ import torch
 import torch.nn as nn
 
 import sys
-sys.path.append('/home/geoalmtbs/vita/fastmoe/fmoe')
+
+basedir = os.getenv('basedir')
+sys.path.append(basedir + 'fastmoe/fmoe')
+
 from functions import prepare_forward, ensure_comm
 from functions import MOEScatter, MOEGather
 from functions import AllGather, Slice
@@ -138,9 +141,12 @@ class FMoE(nn.Module):
 
         self.top_k = top_k
         if type(expert) is list:
-            print('d_model: ', d_model)
-            # ?
-            if (type(expert[0]) == nn.Conv2d):
+            # debug
+            # print('d_model: ', d_model)
+            # debug
+            # print('type(expert[0]): ', type(expert[0]))
+            # !
+            if (True):
                 self.experts = nn.ModuleList([e for e in expert])
             else:
                 self.experts = nn.ModuleList([e(d_model) for e in expert])
@@ -201,7 +207,8 @@ class FMoE(nn.Module):
         moe_inp_batch_size = tree.flatten(
             tree.map_structure(lambda tensor: tensor.shape[0], moe_inp)
         )
-        print('moe_inp_batch_size: ', moe_inp_batch_size)
+        # debug
+        # print('moe_inp_batch_size: ', moe_inp_batch_size)
         assert all(
             [batch_size == moe_inp_batch_size[0] for batch_size in moe_inp_batch_size]
         ), "MoE inputs must have the same batch size"
@@ -218,7 +225,7 @@ class FMoE(nn.Module):
                 return Slice.apply(
                     tensor, self.slice_rank, self.slice_size, self.slice_group
                 )
-
+            print('moe_inp.shape: ', moe_inp.shape)
             moe_inp = tree.map_structure(slice_func, moe_inp)
 
         gate_top_k_idx, gate_score = self.gate(moe_inp)

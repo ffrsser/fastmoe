@@ -12,13 +12,10 @@ from torch import nn
 from torch.nn import functional as F
 from torch.utils import data
 from torchvision import transforms
-
-# import sys
-# sys.path.append('.')
-# from momentumnet.momentumnet.momentum_net import MomentumNet
 from mresnet import mResNet18
+import os
 
-basedir = '/home/geoalmtbs/vita/'
+basedir = os.getenv('basedir')
 
 # print('cuda version: ', torch.version.cuda)
 
@@ -277,6 +274,10 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
             y = y.to(device)
             metric.add(accuracy(net(X), y), y.numel())
     return metric[0] / metric[1]
+
+class ResNet18(nn.Module):
+    pass
+    
 
 def train(net, train_iter, test_iter, num_epochs, lr, device, momentum=0.9, gamma=0.1, weight_decay=5e-4, milestones=[100,150]):
     """Train a model with a GPU (defined in Chapter 6).

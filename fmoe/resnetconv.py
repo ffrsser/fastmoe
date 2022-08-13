@@ -6,7 +6,11 @@ import torch
 import torch.nn as nn
 import math
 import sys
-sys.path.append('/home/geoalmtbs/vita/fastmoe/fmoe')
+import os
+
+basedir = os.getenv('basedir')
+sys.path.append(basedir + 'fastmoe/fmoe')
+
 from layers import FMoE
 from linear import FMoELinear
 

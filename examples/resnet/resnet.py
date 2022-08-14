@@ -279,9 +279,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
 class ResNet18MoE(nn.Module):
     def __init__(self, use_conv_moe, num_expert, moe_top_k):
         super().__init__()
-        b1 = nn.Sequential(nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False),
-                            nn.BatchNorm2d(64), nn.ReLU(inplace=True)
-                            )
+        b1 = nn.Sequential(nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
 
         if use_conv_moe[0] is True:
             b2 = nn.Sequential(*resnet_block_moe(64, 64, 2, (32, 32), first_block=True, moe_top_k=moe_top_k))
@@ -307,7 +305,20 @@ class ResNet18MoE(nn.Module):
 
         b7 = nn.Sequential(nn.Linear(512, 10))
         self.net = nn.Sequential(b1, b2, b3, b4, b5, b6, b7)
-    
+
+    def _hook_before_iter(self):
+
+        assert self.training, "_hook_before_iter should be called at training time only, after train() is called"
+        count = 0
+        for module in self.modules():
+            if isinstance(module, nn.BatchNorm2d):
+                if module.weight.requires_grad == False:
+                    module.eval()
+                    count += 1
+
+        if count > 0:
+            print("Warning: detected at least one frozen BN, set them to eval state. Count:", count)
+
     def forward(self, inp):
         return self.net(inp)
 

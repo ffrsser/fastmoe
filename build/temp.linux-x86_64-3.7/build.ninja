@@ -1,0 +1,32 @@
+ninja_required_version = 1.3
+cxx = c++
+nvcc = /usr/local/cuda/bin/nvcc
+
+cflags = -pthread -B /home/3024hlh/anaconda3/envs/ride/compiler_compat -Wl,--sysroot=/ -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -fPIC -I/home/3024hlh/anaconda3/envs/ride/lib/python3.7/site-packages/torch/include -I/home/3024hlh/anaconda3/envs/ride/lib/python3.7/site-packages/torch/include/torch/csrc/api/include -I/home/3024hlh/anaconda3/envs/ride/lib/python3.7/site-packages/torch/include/TH -I/home/3024hlh/anaconda3/envs/ride/lib/python3.7/site-packages/torch/include/THC -I/usr/local/cuda/include -I/home/3024hlh/anaconda3/envs/ride/include/python3.7m -c
+post_cflags = -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=fmoe_cuda -DTORCH_EXTENSION_NAME=fmoe_cuda -D_GLIBCXX_USE_CXX11_ABI=0 -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++14
+cuda_cflags = -I/home/3024hlh/anaconda3/envs/ride/lib/python3.7/site-packages/torch/include -I/home/3024hlh/anaconda3/envs/ride/lib/python3.7/site-packages/torch/include/torch/csrc/api/include -I/home/3024hlh/anaconda3/envs/ride/lib/python3.7/site-packages/torch/include/TH -I/home/3024hlh/anaconda3/envs/ride/lib/python3.7/site-packages/torch/include/THC -I/usr/local/cuda/include -I/home/3024hlh/anaconda3/envs/ride/include/python3.7m -c
+cuda_post_cflags = -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options ''"'"'-fPIC'"'"'' -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_EXTENSION_NAME=fmoe_cuda -DTORCH_EXTENSION_NAME=fmoe_cuda -D_GLIBCXX_USE_CXX11_ABI=0 -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++14 -gencode=arch=compute_60,code=sm_60
+ldflags = 
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags
+  depfile = $out.d
+  deps = gcc
+
+rule cuda_compile
+  command = $nvcc $cuda_cflags -c $in -o $out $cuda_post_cflags
+
+
+
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/balancing.o: cuda_compile /home/3024hlh/fastmoe/cuda/balancing.cu
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/fastermoe/smart_schedule.o: compile /home/3024hlh/fastmoe/cuda/fastermoe/smart_schedule.cpp
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/fmoe_cuda.o: compile /home/3024hlh/fastmoe/cuda/fmoe_cuda.cpp
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/global_exchange.o: compile /home/3024hlh/fastmoe/cuda/global_exchange.cpp
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/local_exchange.o: cuda_compile /home/3024hlh/fastmoe/cuda/local_exchange.cu
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/parallel_linear.o: cuda_compile /home/3024hlh/fastmoe/cuda/parallel_linear.cu
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/stream_manager.o: compile /home/3024hlh/fastmoe/cuda/stream_manager.cpp
+
+
+
+
+

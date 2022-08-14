@@ -1,0 +1,8 @@
+# ninja log v5
+0	78	1660401126377137046	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/fastermoe/smart_schedule.o	70c6bcf5b3dc4472
+3	2473	1660401128773116469	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/stream_manager.o	f5b1c63e4879029b
+2	13786	1660401140081019356	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/global_exchange.o	ff7d60833cbbbd51
+1	25292	1660401151580920595	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/fmoe_cuda.o	a000ea40d3cd19f7
+2	41051	1660401167340785253	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/local_exchange.o	16300678e32b16ef
+0	42460	1660401168752773126	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/balancing.o	1e9e3b3b8412a826
+3	45351	1660401171640748325	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/parallel_linear.o	e62c28ff6fe47d9c

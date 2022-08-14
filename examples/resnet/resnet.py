@@ -277,7 +277,7 @@ def evaluate_accuracy_gpu(net, data_iter, device=None):
     return metric[0] / metric[1]
 
 class ResNet18MoE(nn.Module):
-    def __init__(self, use_conv_moe, num_expert, moe_top_k):
+    def __init__(self, num_classes, use_conv_moe, num_expert, moe_top_k):
         super().__init__()
         b1 = nn.Sequential(nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False),
                             nn.BatchNorm2d(64), nn.ReLU(inplace=True)
@@ -305,7 +305,7 @@ class ResNet18MoE(nn.Module):
 
         b6 = nn.Sequential(nn.AdaptiveAvgPool2d((1,1)), nn.Flatten())
 
-        b7 = nn.Sequential(nn.Linear(512, 10))
+        b7 = nn.Sequential(nn.Linear(512, num_classes))
         self.net = nn.Sequential(b1, b2, b3, b4, b5, b6, b7)
     
     def forward(self, inp):

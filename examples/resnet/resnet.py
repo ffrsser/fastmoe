@@ -281,22 +281,22 @@ class ResNet18MoE(nn.Module):
         super().__init__()
         b1 = nn.Sequential(nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
 
-        if use_conv_moe[0] is True:
+        if use_conv_moe[0] == True:
             b2 = nn.Sequential(*resnet_block_moe(64, 64, 2, (32, 32), first_block=True, moe_top_k=moe_top_k))
         else:
             b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True))
 
-        if use_conv_moe[1] is True:
+        if use_conv_moe[1] == True:
             b3 = nn.Sequential(*resnet_block_moe(64, 128, 2, (16, 16), num_expert=num_expert, moe_top_k=moe_top_k))
         else: 
             b3 = nn.Sequential(*resnet_block(64, 128, 2))
 
-        if use_conv_moe[2] is True:
+        if use_conv_moe[2] == True:
             b4 = nn.Sequential(*resnet_block_moe(128, 256, 2, (8, 8), num_expert=num_expert, moe_top_k=moe_top_k))
         else:
             b4 = nn.Sequential(*resnet_block(128, 256, 2))
 
-        if use_conv_moe[3] is True:
+        if use_conv_moe[3] == True:
             b5 = nn.Sequential(*resnet_block_moe(256, 512, 2, (4, 4), num_expert=num_expert, moe_top_k=moe_top_k))
         else:
             b5 = nn.Sequential(*resnet_block(256, 512, 2))

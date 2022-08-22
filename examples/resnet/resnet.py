@@ -320,7 +320,9 @@ class ResNet18MoE(nn.Module):
             print("Warning: detected at least one frozen BN, set them to eval state. Count:", count)
 
     def forward(self, inp):
-        return self.net(inp)
+        out = self.net(inp)
+        self.logits = out
+        return out
 
 def train(net, train_iter, test_iter, num_epochs, lr, device, momentum=0.9, gamma=0.1, weight_decay=5e-4, milestones=[100,150]):
     """Train a model with a GPU (defined in Chapter 6).

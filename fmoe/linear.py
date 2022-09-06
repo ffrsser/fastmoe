@@ -63,6 +63,7 @@ class FMoELinear(nn.Module):
             self.bias = nn.Parameter(torch.zeros(num_expert, out_feat))
         else:
             self.register_parameter("bias", None)
+            # ?
 
         self.reset_parameters()
 

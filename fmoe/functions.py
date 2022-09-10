@@ -23,9 +23,10 @@ def ensure_comm(t, comm):
     if comm is None:
         comm = get_torch_default_comm()
     global _moe_group
+    #?
     _moe_group = comm
     fmoe_cuda.ensure_nccl(comm, t)
-
+    #?
 
 def get_moe_group():
     return _moe_group

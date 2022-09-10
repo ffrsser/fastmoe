@@ -13,6 +13,7 @@ class MOELinear(Function):
     r"""
     Computes linear operators within one GPU on different experts simutaneously.
     """
+    #? What's ctx? fmoe_cuda?
 
     @staticmethod
     def forward(ctx, global_input_buf, fwd_expert_count, weight, bias=None):
@@ -72,6 +73,7 @@ class FMoELinear(nn.Module):
         Call MOE function
         """
         x = MOELinear.apply(inp, fwd_expert_count, self.weight, self.bias)
+        # apply?
         return x
 
     def extra_repr(self) -> str:
@@ -83,6 +85,7 @@ class FMoELinear(nn.Module):
             self.bias is not None,
             self.rank,
         )
+        #? ""
 
     def reset_parameters(self):
         # Approach is the same as in torch.nn.Linear

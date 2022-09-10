@@ -17,8 +17,6 @@ from linear import FMoELinear
 
 class _Expert(nn.Module):
     r"""
-    An expert using 2 FMoELinear modules to speed up the computation of experts
-    within one worker.
     """
 
     def __init__(self, num_channels):
@@ -28,8 +26,6 @@ class _Expert(nn.Module):
 
     def forward(self, inp):
         r"""
-        First expand input to 4h (the hidden size is variable, but is called h4
-        for convenience). Then perform activation. Finally shirink back to h.
         """
         original_shape = inp.shape
         # debug
@@ -47,9 +43,6 @@ class _Expert(nn.Module):
 
 class FMoEResNetConv(FMoE):
     r"""
-    A complete MoE MLP module in a Transformer block.
-    * `activation` is the activation function to be used in MLP in each expert.
-    * `d_hidden` is the dimension of the MLP layer.
     """
 
     def __init__(
@@ -71,8 +64,6 @@ class FMoEResNetConv(FMoE):
 
     def forward(self, inp: torch.Tensor):
         r"""
-        This module wraps up the FMoE module with reshape, residual and layer
-        normalization.
         """
         original_shape = inp.shape
         # debug

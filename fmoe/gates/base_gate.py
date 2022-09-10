@@ -11,6 +11,7 @@ class BaseGate(nn.Module):
         self.num_expert = num_expert
         self.tot_expert = world_size * num_expert
         self.loss = None
+    #? world_size, worker?
 
     def forward(self, x):
         raise NotImplementedError('Base gate cannot be directly used for fwd')

@@ -122,6 +122,7 @@ class FMoE(nn.Module):
         gate_hook=None,
         mask=None,
         mask_dict=None,
+        #? What's mask used for?
     ):
         super().__init__()
         self.num_expert = num_expert
@@ -146,10 +147,17 @@ class FMoE(nn.Module):
             # debug
             # print('type(expert[0]): ', type(expert[0]))
             # !
+
+            # if type(expert) is list:
+            #     self.experts = nn.ModuleList([e(d_model) for e in expert])
+            #     self.experts_fused = False
+            #     self.num_expert = num_expert = len(expert)
             if (True):
                 self.experts = nn.ModuleList([e for e in expert])
             else:
                 self.experts = nn.ModuleList([e(d_model) for e in expert])
+                #? Why initialize the model's dimension here?
+                #? What's e(d_model)? To check if the dimensions match.
             self.experts_fused = False
             self.num_expert = num_expert = len(expert)
         elif expert is not None:
@@ -157,9 +165,11 @@ class FMoE(nn.Module):
             self.experts_fused = False
         else:
             self.experts_fused = True
+            #? What's expert_fused?
 
         self.gate = gate(d_model, num_expert, world_size, top_k)
         self.gate_hook = gate_hook
+        #? What's gate_hook?
         self.mask = mask
         self.mask_dict = mask_dict
         self.moe_group = moe_group
@@ -173,6 +183,7 @@ class FMoE(nn.Module):
             return self.experts(inp, fwd_expert_count)
         if isinstance(fwd_expert_count, torch.Tensor):
             fwd_expert_count = fwd_expert_count.cpu().numpy()
+            #?
         outputs = []
         base_idx = 0
         for i in range(self.num_expert):
@@ -207,11 +218,16 @@ class FMoE(nn.Module):
         moe_inp_batch_size = tree.flatten(
             tree.map_structure(lambda tensor: tensor.shape[0], moe_inp)
         )
+        #debug
+        print("moe_inp_shape: ", moe_inp.shape)
+        #?
         # debug
         # print('moe_inp_batch_size: ', moe_inp_batch_size)
         assert all(
             [batch_size == moe_inp_batch_size[0] for batch_size in moe_inp_batch_size]
         ), "MoE inputs must have the same batch size"
+        #? Lazy generation?
+        #? Why does the batch size need to be the same?
 
         if self.world_size > 1:
 
@@ -244,6 +260,7 @@ class FMoE(nn.Module):
             mask = self.mask.view(-1)
             moe_inp = tree.map_structure(delete_mask_func, moe_inp)
             gate_top_k_idx = gate_top_k_idx[mask == 0, :]
+            #? Wrong? The shape of gate_top_k_idx is not feasible to perform this.
 
         fwd = _fmoe_general_global_forward(
             moe_inp, gate_top_k_idx, self.expert_fn,
@@ -282,6 +299,7 @@ class FMoE(nn.Module):
 
             moe_outp = tree.map_structure(view_func, fwd)
 
+        #? View.
         gate_score = gate_score.view(-1, 1, self.top_k)
 
         def bmm_func(tensor):
@@ -307,3 +325,4 @@ class FMoE(nn.Module):
             [batch_size == moe_outp_batch_size[0] for batch_size in moe_outp_batch_size]
         ), "MoE outputs must have the same batch size"
         return moe_outp
+        #! Shape (BS, 1, dim).

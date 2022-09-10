@@ -208,7 +208,7 @@ class FMoE(nn.Module):
                 mark_module_parallel_comm(self.experts, comm)
         mark_module_parallel_comm(self.gate, "gate")
 
-    def forward(self, moe_inp):
+    def forward(self, moe_inp, selected_experts_log=None):
         r"""
         The FMoE module first computes gate output, and then conduct MoE forward
         according to the gate.  The score of the selected gate given by the
@@ -261,6 +261,9 @@ class FMoE(nn.Module):
             moe_inp = tree.map_structure(delete_mask_func, moe_inp)
             gate_top_k_idx = gate_top_k_idx[mask == 0, :]
             #? Wrong? The shape of gate_top_k_idx is not feasible to perform this.
+
+        if selected_experts_log is not None:
+            selected_experts_log.append(gate_top_k_idx)
 
         fwd = _fmoe_general_global_forward(
             moe_inp, gate_top_k_idx, self.expert_fn,

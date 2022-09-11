@@ -62,15 +62,15 @@ class FMoEResNetConv(FMoE):
 
         self.mark_parallel_comm(expert_dp_comm)
 
-    def forward(self, inp: torch.Tensor, selected_experts_log=None):
+    def forward(self, inp: torch.Tensor, selected_experts_log):
         r"""
         """
         original_shape = inp.shape
         # debug
         # print('In class FMoEResNetConv: original_shape: ', original_shape)
         inp = inp.reshape(original_shape[0], -1)
-        output = super().forward(inp, selected_experts_log)
+        (output, selected_experts_log) = super().forward(inp, selected_experts_log)
         # debug
         # print('In class FMoEResNetConv: output_shape: ', output.shape)
-        return output.reshape(original_shape)
+        return (output.reshape(original_shape), selected_experts_log)
         # return super().forward(inp)

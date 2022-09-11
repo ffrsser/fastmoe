@@ -4,7 +4,7 @@ Supportive modules to conduct distributed training
 import torch
 import torch.nn as nn
 from torch._utils import _flatten_dense_tensors, _unflatten_dense_tensors
-from .utils import get_torch_default_comm, get_rank_0_in_comm
+from .utilsfmoe import get_torch_default_comm, get_rank_0_in_comm
 
 
 class DistributedGroupedDataParallel(nn.Module):

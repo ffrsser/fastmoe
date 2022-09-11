@@ -15,3 +15,10 @@
 1	19634	1660393219267135855	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/local_exchange.o	c35ec504b5d6c7
 1	20090	1660393219723131170	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/balancing.o	8e1300dc0944eea7
 2	20697	1660393220327124972	/home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/parallel_linear.o	bc99b0202bf3ec7c
+0	92	1661164613921961345	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/fastermoe/smart_schedule.o	3a7f2b547859f3aa
+4	2532	1661164616361940514	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/stream_manager.o	b7eb1bd4a650a0a
+2	14059	1661164627889842100	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/global_exchange.o	3d221013d0ac6058
+1	26944	1661164640761732212	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/fmoe_cuda.o	5b11f550f5dc745d
+2	42202	1661164656021601939	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/local_exchange.o	cc8a72edf0b86ded
+3	43974	1661164657793586811	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/parallel_linear.o	f98bc860cd8bd0f8
+0	45457	1661164659277574142	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/balancing.o	17a805831a7cb991

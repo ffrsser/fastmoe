@@ -6,3 +6,10 @@
 2	41051	1660401167340785253	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/local_exchange.o	16300678e32b16ef
 0	42460	1660401168752773126	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/balancing.o	1e9e3b3b8412a826
 3	45351	1660401171640748325	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/parallel_linear.o	e62c28ff6fe47d9c
+2	31	1660539815084590278	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/fastermoe/smart_schedule.o	abadc5bedda95372
+5	2785	1660539817836567039	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/stream_manager.o	a044de66d992cf6d
+3	14995	1660539830044463948	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/global_exchange.o	2b7642fbec427d54
+3	26897	1660539841936363526	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/fmoe_cuda.o	33fe567b78515bc4
+2	44098	1660539859140218244	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/balancing.o	aac426e63ea461ae
+4	45238	1660539860280208618	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/local_exchange.o	1a3af1b786ab1081
+4	46370	1660539861412199058	/home/3024hlh/fastmoe/build/temp.linux-x86_64-3.7/cuda/parallel_linear.o	31fbe65d4e99f959

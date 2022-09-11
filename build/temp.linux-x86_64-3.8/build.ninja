@@ -1,11 +1,11 @@
 ninja_required_version = 1.3
 cxx = c++
-nvcc = /home/geoalmtbs/miniconda3/envs/fastmoe/bin/nvcc
+nvcc = /usr/local/cuda/bin/nvcc
 
-cflags = -pthread -B /home/geoalmtbs/miniconda3/envs/fastmoe/compiler_compat -Wl,--sysroot=/ -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -fPIC -I/home/geoalmtbs/miniconda3/envs/fastmoe/lib/python3.8/site-packages/torch/include -I/home/geoalmtbs/miniconda3/envs/fastmoe/lib/python3.8/site-packages/torch/include/torch/csrc/api/include -I/home/geoalmtbs/miniconda3/envs/fastmoe/lib/python3.8/site-packages/torch/include/TH -I/home/geoalmtbs/miniconda3/envs/fastmoe/lib/python3.8/site-packages/torch/include/THC -I/home/geoalmtbs/miniconda3/envs/fastmoe/include -I/home/geoalmtbs/miniconda3/envs/fastmoe/include/python3.8 -c
+cflags = -pthread -B /home/3024hlh/anaconda3/envs/ride/compiler_compat -Wl,--sysroot=/ -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -fPIC -I/home/3024hlh/anaconda3/envs/ride/lib/python3.8/site-packages/torch/include -I/home/3024hlh/anaconda3/envs/ride/lib/python3.8/site-packages/torch/include/torch/csrc/api/include -I/home/3024hlh/anaconda3/envs/ride/lib/python3.8/site-packages/torch/include/TH -I/home/3024hlh/anaconda3/envs/ride/lib/python3.8/site-packages/torch/include/THC -I/usr/local/cuda/include -I/home/3024hlh/anaconda3/envs/ride/include/python3.8 -c
 post_cflags = -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_API_INCLUDE_EXTENSION_H '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' -DTORCH_EXTENSION_NAME=fmoe_cuda -DTORCH_EXTENSION_NAME=fmoe_cuda -D_GLIBCXX_USE_CXX11_ABI=0 -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++14
-cuda_cflags = -I/home/geoalmtbs/miniconda3/envs/fastmoe/lib/python3.8/site-packages/torch/include -I/home/geoalmtbs/miniconda3/envs/fastmoe/lib/python3.8/site-packages/torch/include/torch/csrc/api/include -I/home/geoalmtbs/miniconda3/envs/fastmoe/lib/python3.8/site-packages/torch/include/TH -I/home/geoalmtbs/miniconda3/envs/fastmoe/lib/python3.8/site-packages/torch/include/THC -I/home/geoalmtbs/miniconda3/envs/fastmoe/include -I/home/geoalmtbs/miniconda3/envs/fastmoe/include/python3.8 -c
-cuda_post_cflags = -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options ''"'"'-fPIC'"'"'' -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_API_INCLUDE_EXTENSION_H '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' -DTORCH_EXTENSION_NAME=fmoe_cuda -DTORCH_EXTENSION_NAME=fmoe_cuda -D_GLIBCXX_USE_CXX11_ABI=0 -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++14 -gencode=arch=compute_86,code=compute_86 -gencode=arch=compute_86,code=sm_86
+cuda_cflags = -I/home/3024hlh/anaconda3/envs/ride/lib/python3.8/site-packages/torch/include -I/home/3024hlh/anaconda3/envs/ride/lib/python3.8/site-packages/torch/include/torch/csrc/api/include -I/home/3024hlh/anaconda3/envs/ride/lib/python3.8/site-packages/torch/include/TH -I/home/3024hlh/anaconda3/envs/ride/lib/python3.8/site-packages/torch/include/THC -I/usr/local/cuda/include -I/home/3024hlh/anaconda3/envs/ride/include/python3.8 -c
+cuda_post_cflags = -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options ''"'"'-fPIC'"'"'' -DTORCH_API_INCLUDE_EXTENSION_H -DTORCH_API_INCLUDE_EXTENSION_H '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' -DTORCH_EXTENSION_NAME=fmoe_cuda -DTORCH_EXTENSION_NAME=fmoe_cuda -D_GLIBCXX_USE_CXX11_ABI=0 -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++14 -gencode=arch=compute_60,code=compute_60 -gencode=arch=compute_60,code=sm_60
 ldflags = 
 
 rule compile
@@ -20,13 +20,13 @@ rule cuda_compile
 
 
 
-build /home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/balancing.o: cuda_compile /home/geoalmtbs/vita/fastmoe/cuda/balancing.cu
-build /home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/fastermoe/smart_schedule.o: compile /home/geoalmtbs/vita/fastmoe/cuda/fastermoe/smart_schedule.cpp
-build /home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/fmoe_cuda.o: compile /home/geoalmtbs/vita/fastmoe/cuda/fmoe_cuda.cpp
-build /home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/global_exchange.o: compile /home/geoalmtbs/vita/fastmoe/cuda/global_exchange.cpp
-build /home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/local_exchange.o: cuda_compile /home/geoalmtbs/vita/fastmoe/cuda/local_exchange.cu
-build /home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/parallel_linear.o: cuda_compile /home/geoalmtbs/vita/fastmoe/cuda/parallel_linear.cu
-build /home/geoalmtbs/vita/fastmoe/build/temp.linux-x86_64-3.8/cuda/stream_manager.o: compile /home/geoalmtbs/vita/fastmoe/cuda/stream_manager.cpp
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/balancing.o: cuda_compile /home/3024hlh/fastmoe/cuda/balancing.cu
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/fastermoe/smart_schedule.o: compile /home/3024hlh/fastmoe/cuda/fastermoe/smart_schedule.cpp
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/fmoe_cuda.o: compile /home/3024hlh/fastmoe/cuda/fmoe_cuda.cpp
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/global_exchange.o: compile /home/3024hlh/fastmoe/cuda/global_exchange.cpp
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/local_exchange.o: cuda_compile /home/3024hlh/fastmoe/cuda/local_exchange.cu
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/parallel_linear.o: cuda_compile /home/3024hlh/fastmoe/cuda/parallel_linear.cu
+build /home/3024hlh/fastmoe/build/temp.linux-x86_64-3.8/cuda/stream_manager.o: compile /home/3024hlh/fastmoe/cuda/stream_manager.cpp
 
 
 

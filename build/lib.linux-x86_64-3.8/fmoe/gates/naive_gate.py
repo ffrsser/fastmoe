@@ -29,11 +29,14 @@ class NaiveGate(BaseGate):
         output.
         """
         gate = self.gate(inp)
+        #! Shape of gate: (BS, tot_expert)
         gate_top_k_val, gate_top_k_idx = torch.topk(
             gate, k=self.top_k, dim=-1, largest=True, sorted=False
         )  # [.. x top_k]
         gate_top_k_val = gate_top_k_val.view(-1, self.top_k)
+        #? view(-1, self.top_k)
 
+        #? If I design MoE of convolutional layer, why do I need this linear gate?
         # (BxL) x 1 x top_k
         gate_score = F.softmax(gate_top_k_val, dim=-1)
 

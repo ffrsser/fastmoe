@@ -208,7 +208,7 @@ class FMoE(nn.Module):
                 mark_module_parallel_comm(self.experts, comm)
         mark_module_parallel_comm(self.gate, "gate")
 
-    def forward(self, moe_inp, selected_experts_log=None):
+    def forward(self, moe_inp, selected_experts_log):
         r"""
         The FMoE module first computes gate output, and then conduct MoE forward
         according to the gate.  The score of the selected gate given by the
@@ -219,7 +219,7 @@ class FMoE(nn.Module):
             tree.map_structure(lambda tensor: tensor.shape[0], moe_inp)
         )
         #debug
-        print("moe_inp_shape: ", moe_inp.shape)
+        # print("moe_inp_shape: ", moe_inp.shape)
         #?
         # debug
         # print('moe_inp_batch_size: ', moe_inp_batch_size)
@@ -327,5 +327,5 @@ class FMoE(nn.Module):
         assert all(
             [batch_size == moe_outp_batch_size[0] for batch_size in moe_outp_batch_size]
         ), "MoE outputs must have the same batch size"
-        return moe_outp
+        return (moe_outp, selected_experts_log)
         #! Shape (BS, 1, dim).

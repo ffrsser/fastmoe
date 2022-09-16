@@ -263,7 +263,9 @@ class FMoE(nn.Module):
             #? Wrong? The shape of gate_top_k_idx is not feasible to perform this.
 
         if selected_experts_log is not None:
-            selected_experts_log.append(gate_top_k_idx)
+            selected_experts_log.append(torch.stack([gate_top_k_idx, gate_score], dim=2))
+        #! Shape of gate_top_k_idx and gate_score are (BS, top_k) and (BS, top_k)
+        #! After stacking, the shape is (BS, top_k, 2)
 
         fwd = _fmoe_general_global_forward(
             moe_inp, gate_top_k_idx, self.expert_fn,

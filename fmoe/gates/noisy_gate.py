@@ -172,6 +172,9 @@ class NoisyConvGate(BaseGate):
         self.w_gate = nn.Parameter(
             torch.zeros(out_channels, self.tot_expert), requires_grad=True
         )
+        self.b_gate = nn.Parameter(
+            torch.zeros(self.tot_expert), requires_grad=True
+        )
 
         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=2, padding=1)
         self.bn1 = nn.BatchNorm2d(out_channels)
@@ -197,6 +200,7 @@ class NoisyConvGate(BaseGate):
 
         torch.nn.init.kaiming_uniform_(self.w_gate, a=math.sqrt(5))
         torch.nn.init.kaiming_uniform_(self.w_noise, a=math.sqrt(5))
+        torch.nn.init.kaiming_uniform_(self.b_gate, a=math.sqrt(5))
 
 
     def _gates_to_load(self, gates):
@@ -283,7 +287,8 @@ class NoisyConvGate(BaseGate):
         clean_logits = F.relu(self.bn2(self.conv2(F.relu(self.bn1(self.conv1(inp))))) + self.shortcut(inp))
         clean_logits = F.avg_pool2d(clean_logits, clean_logits.size()[3])
         clean_logits = torch.squeeze(clean_logits)
-        clean_logits = clean_logits @ self.w_gate
+        clean_logits = clean_logits @ self.w_gate + self.b_gate
+        #! Add bias to perform linear forward propagation.
 
         #debug
         # print('clean_logits', clean_logits.shape)

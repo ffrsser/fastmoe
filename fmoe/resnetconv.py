@@ -8,6 +8,8 @@ import math
 import sys
 import os
 
+from gates import NaiveGate, NoisyGate
+
 basedir = os.getenv('basedir')
 sys.path.append(basedir + 'fastmoe/fmoe')
 
@@ -58,7 +60,7 @@ class FMoEResNetConv(FMoE):
         for i in range(num_expert):
             expert.append(_Expert(num_channels=num_channels))
 
-        super().__init__(num_expert=num_expert, d_model=d_model, expert=expert, **kwargs)
+        super().__init__(num_expert=num_expert, d_model=d_model, expert=expert, gate=NoisyGate, **kwargs)
 
         self.mark_parallel_comm(expert_dp_comm)
 

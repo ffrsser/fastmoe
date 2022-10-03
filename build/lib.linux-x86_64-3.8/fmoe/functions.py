@@ -88,11 +88,15 @@ def _local_scatter(inp, pos):
 
 
 def _local_gather(inp, pos, out_batch_size, maybe_overlap=True):
-    inp_buf = torch.zeros(out_batch_size, inp.shape[-1],
+    # inp_buf = torch.zeros(out_batch_size, inp.shape[-1],
+    #         dtype=inp.dtype, device=inp.device)
+    inp_buf = torch.zeros([out_batch_size] + list(inp.shape[1:]),
             dtype=inp.dtype, device=inp.device)
     if maybe_overlap:
         inp_buf.index_add_(0, pos, inp)
     else:
+        #debug
+        # print('out_batch_size.shape', out_batch_size, 'pos', pos.shape, 'inp', inp.shape)
         inp_buf.index_copy_(0, pos, inp)
     return inp_buf
 
@@ -114,7 +118,15 @@ class MOEScatter(Function):
         fwd_batch_size,
         world_size,
     ):
+        #? ctx
+        #debug
+        # print('In MoEScatter, inp.shape, pos.shape, pos', inp.shape, pos.shape, pos)
+
         local_input_buf = _local_scatter(inp, pos)
+        
+        #debug
+        # print('local_input_buf', local_input_buf.shape)
+
         if world_size > 1:
             global_input_buf = fmoe_cuda.global_scatter(
                 local_input_buf,

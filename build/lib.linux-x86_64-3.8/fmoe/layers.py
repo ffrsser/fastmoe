@@ -14,7 +14,7 @@ sys.path.append(basedir + 'fastmoe/fmoe')
 from functions import prepare_forward, ensure_comm
 from functions import MOEScatter, MOEGather
 from functions import AllGather, Slice
-from gates import NaiveGate
+from gates import NaiveGate, NoisyGate
 
 from fastermoe.config import switch_from_env
 
@@ -50,6 +50,10 @@ def _fmoe_general_global_forward(inp, gate, expert_fn, num_expert, world_size, *
     topk = 1
     if len(gate.shape) == 2:
         topk = gate.shape[1]
+    
+    #debug
+    # print('gate', gate.shape)
+    # print('pos', pos)
 
     def scatter_func(tensor):
         return MOEScatter.apply(
@@ -62,10 +66,20 @@ def _fmoe_general_global_forward(inp, gate, expert_fn, num_expert, world_size, *
         )
 
     x = tree.map_structure(scatter_func, inp)
+    #debug
+    # print('x, inp', x.shape, inp.shape)
 
     x = expert_fn(x, fwd_expert_count)
+    #debug
+    # print('x', x.shape)
+
+    original_shape = x.shape
 
     out_batch_size = tree.flatten(inp)[0].shape[0]
+    #debug
+    # print('tree.flatten(inp).shape', tree.flatten(inp))
+    # print('out_batch_size', out_batch_size)
+
     if len(gate.shape) == 2:
         out_batch_size *= gate.shape[1]
 
@@ -129,6 +143,8 @@ class FMoE(nn.Module):
         self.d_model = d_model
         self.world_size = world_size
 
+        self.selected_experts_log = None
+
         self.slice_group = slice_group
         if mp_group is not None:
             print("[Warning] mp_group is being deprecated")
@@ -161,7 +177,8 @@ class FMoE(nn.Module):
             self.experts_fused = False
             self.num_expert = num_expert = len(expert)
         elif expert is not None:
-            self.experts = nn.ModuleList([expert(d_model) for _ in range(num_expert)])
+            # self.experts = nn.ModuleList([expert(d_model) for _ in range(num_expert)])
+            self.experts = nn.ModuleList([expert for _ in range(num_expert)])
             self.experts_fused = False
         else:
             self.experts_fused = True
@@ -208,7 +225,14 @@ class FMoE(nn.Module):
                 mark_module_parallel_comm(self.experts, comm)
         mark_module_parallel_comm(self.gate, "gate")
 
-    def forward(self, moe_inp, selected_experts_log):
+    def enable_logging_experts(self):
+        self.selected_experts_log = []
+    
+    def disable_logging_experts(self):
+        self.selected_experts_log = None
+
+    # def forward(self, moe_inp, selected_experts_log):
+    def forward(self, moe_inp):
         r"""
         The FMoE module first computes gate output, and then conduct MoE forward
         according to the gate.  The score of the selected gate given by the
@@ -244,7 +268,15 @@ class FMoE(nn.Module):
             print('moe_inp.shape: ', moe_inp.shape)
             moe_inp = tree.map_structure(slice_func, moe_inp)
 
+        # original_shape = moe_inp.shape
+        # moe_inp = moe_inp.reshape(-1, self.d_model)
+
+        #debug
+        # print('d_model', self.d_model)
+        # gate_top_k_idx, gate_score = self.gate(moe_inp.reshape(-1, self.d_model))
         gate_top_k_idx, gate_score = self.gate(moe_inp)
+        #debug
+        # print('gate_top_k_idx, gate_score', gate_top_k_idx.shape, gate_score.shape)
 
         if self.gate_hook is not None:
             self.gate_hook(gate_top_k_idx, gate_score, None)
@@ -262,14 +294,22 @@ class FMoE(nn.Module):
             gate_top_k_idx = gate_top_k_idx[mask == 0, :]
             #? Wrong? The shape of gate_top_k_idx is not feasible to perform this.
 
-        if selected_experts_log is not None:
-            selected_experts_log.append(gate_top_k_idx)
+        if self.selected_experts_log is not None:
+            self.selected_experts_log.append(torch.stack([gate_top_k_idx, gate_score], dim=2))
+        #! Shape of gate_top_k_idx and gate_score are (BS, top_k) and (BS, top_k)
+        #! After stacking, the shape is (BS, top_k, 2)
 
+        #debug
+        # print('moe_inp.shape: ', moe_inp.shape)
         fwd = _fmoe_general_global_forward(
             moe_inp, gate_top_k_idx, self.expert_fn,
             self.num_expert, self.world_size,
             experts=self.experts
         )
+        #debug
+        # print('fwd.shape: ', fwd.shape)
+
+        original_shape = list(fwd.shape[1:])
 
         # recover deleted tensors
         if self.mask is not None and self.mask_dict is not None:
@@ -296,10 +336,11 @@ class FMoE(nn.Module):
         else:
 
             def view_func(tensor):
-                dim = tensor.shape[-1]
+                dim = torch.prod(torch.Tensor(list(tensor.shape[1:])), dtype=torch.int64)
                 tensor = tensor.view(-1, self.top_k, dim)
                 return tensor
 
+        
             moe_outp = tree.map_structure(view_func, fwd)
 
         #? View.
@@ -310,7 +351,10 @@ class FMoE(nn.Module):
             tensor = torch.bmm(gate_score, tensor).reshape(-1, dim)
             return tensor
 
+        #debug
+        # print(moe_outp.shape)
         moe_outp = tree.map_structure(bmm_func, moe_outp)
+        moe_outp = moe_outp.reshape([moe_outp.shape[0]] + original_shape)
 
         if self.slice_size > 1:
 
@@ -327,5 +371,6 @@ class FMoE(nn.Module):
         assert all(
             [batch_size == moe_outp_batch_size[0] for batch_size in moe_outp_batch_size]
         ), "MoE outputs must have the same batch size"
-        return (moe_outp, selected_experts_log)
+        # return (moe_outp, selected_experts_log)
+        return moe_outp
         #! Shape (BS, 1, dim).
